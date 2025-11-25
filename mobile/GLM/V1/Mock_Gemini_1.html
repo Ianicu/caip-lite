@@ -1,0 +1,444 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能录音助手 - UI Design Showcase</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- 引入 FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb', // 主蓝色
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 40px -10px rgba(0,0,0,0.08)',
+                        'glow': '0 0 20px rgba(37, 99, 235, 0.15)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f8fafc; /* Slate-50 */
+            color: #334155;
+        }
+        
+        /* 模拟手机外壳 */
+        .phone-mockup {
+            width: 375px; /* 标准设计稿宽度 */
+            height: 812px; /* iPhone X 高度 */
+            margin: 0 auto;
+            border: 12px solid #1e293b; /* 深色边框模拟机身 */
+            border-radius: 46px;
+            overflow: hidden;
+            position: relative;
+            background: #fff;
+            box-shadow: 
+                0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+                0 10px 10px -5px rgba(0, 0, 0, 0.04),
+                inset 0 0 0 2px #334155;
+            transform: translateZ(0);
+        }
+
+        /* 模拟手机刘海/灵动岛 */
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 30px;
+            background-color: #1e293b;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+            z-index: 10;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: #fff;
+        }
+
+        /* 隐藏滚动条但允许滚动 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- 顶部导航/标题区 -->
+    <div class="glass-header fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+                    <i class="fas fa-microphone-lines text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800 tracking-tight">智能录音助手</h1>
+                    <p class="text-xs text-brand-600 font-medium uppercase tracking-wider">UI Design System</p>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-4 text-sm font-medium text-slate-500">
+                <span><i class="far fa-clock mr-1"></i> Nov 24, 2025</span>
+                <span class="px-3 py-1 bg-brand-50 text-brand-700 rounded-full text-xs">v2.0.1 Mockup</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容区 -->
+    <div class="container mx-auto px-4 pt-28 pb-20 max-w-7xl">
+        
+        <!-- 统计数据卡片 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+            <div class="bg-white p-6 rounded-2xl shadow-soft border border-slate-100 flex items-center gap-4 hover:-translate-y-1 transition-transform duration-300">
+                <div class="w-12 h-12 rounded-full bg-blue-50 text-brand-600 flex items-center justify-center text-xl">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-slate-800">18</div>
+                    <div class="text-sm text-slate-500">核心页面</div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-soft border border-slate-100 flex items-center gap-4 hover:-translate-y-1 transition-transform duration-300">
+                <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
+                    <i class="fas fa-mobile-screen"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-slate-800">375px</div>
+                    <div class="text-sm text-slate-500">设计基准宽</div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-soft border border-slate-100 flex items-center gap-4 hover:-translate-y-1 transition-transform duration-300">
+                <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                    <i class="fas fa-wand-magic-sparkles"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-slate-800">AI</div>
+                    <div class="text-sm text-slate-500">智能模块</div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-soft border border-slate-100 flex items-center gap-4 hover:-translate-y-1 transition-transform duration-300">
+                <div class="w-12 h-12 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center text-xl">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-slate-800">5</div>
+                    <div class="text-sm text-slate-500">功能闭环</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面展示 Grid -->
+        <div class="space-y-16">
+            
+            <!-- 1. 启动与认证流程 -->
+            <section>
+                <div class="flex items-center gap-3 mb-8 pb-4 border-b border-slate-200">
+                    <div class="w-1.5 h-8 bg-brand-600 rounded-full"></div>
+                    <h2 class="text-2xl font-bold text-slate-800">启动与认证流程</h2>
+                    <span class="text-sm text-slate-400 mt-1 ml-2">Onboarding & Auth</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12">
+                    <!-- Card Item -->
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">欢迎页</h3>
+                            <p class="text-sm text-slate-500">品牌展示与应用介绍</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="1-欢迎页.html" title="欢迎页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">手机号登录页</h3>
+                            <p class="text-sm text-slate-500">用户认证界面</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="2-手机号登录页.html" title="手机号登录页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">声纹录制页</h3>
+                            <p class="text-sm text-slate-500">声纹录制与识别</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="3-声纹录制页.html" title="声纹录制页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">设备绑定页</h3>
+                            <p class="text-sm text-slate-500">扫码绑定录音设备</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="4-设备绑定页.html" title="设备绑定页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 核心功能页面 -->
+            <section>
+                <div class="flex items-center gap-3 mb-8 pb-4 border-b border-slate-200">
+                    <div class="w-1.5 h-8 bg-brand-600 rounded-full"></div>
+                    <h2 class="text-2xl font-bold text-slate-800">核心功能页面</h2>
+                    <span class="text-sm text-slate-400 mt-1 ml-2">Core Features</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12">
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">主页仪表板</h3>
+                            <p class="text-sm text-slate-500">设备状态与快捷操作</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="5-主页仪表板.html" title="主页仪表板" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">设备管理页</h3>
+                            <p class="text-sm text-slate-500">设备详情与远程控制</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="6-设备管理页.html" title="设备管理页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">音频播放页</h3>
+                            <p class="text-sm text-slate-500">音频播放与转写文本</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="7-音频播放页.html" title="音频播放页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">录音列表页</h3>
+                            <p class="text-sm text-slate-500">录音文件管理</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="10-录音列表页.html" title="录音列表页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. AI智能功能 -->
+            <section>
+                <div class="flex items-center gap-3 mb-8 pb-4 border-b border-slate-200">
+                    <div class="w-1.5 h-8 bg-brand-600 rounded-full"></div>
+                    <h2 class="text-2xl font-bold text-slate-800">AI 智能功能</h2>
+                    <span class="text-sm text-slate-400 mt-1 ml-2">Artificial Intelligence</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12">
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">AI Chat页</h3>
+                            <p class="text-sm text-slate-500">基于录音的智能问答</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="8-AI-Chat页.html" title="AI Chat页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">AI 摘要页</h3>
+                            <p class="text-sm text-slate-500">智能摘要与关键词提取</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="14-AI摘要页.html" title="AI摘要页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">总结模板页</h3>
+                            <p class="text-sm text-slate-500">AI总结模板选择</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="16-总结模板页.html" title="总结模板页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">音频编辑页</h3>
+                            <p class="text-sm text-slate-500">音频裁剪与重命名</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="15-音频编辑页.html" title="音频编辑页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. 合订本功能 -->
+            <section>
+                <div class="flex items-center gap-3 mb-8 pb-4 border-b border-slate-200">
+                    <div class="w-1.5 h-8 bg-brand-600 rounded-full"></div>
+                    <h2 class="text-2xl font-bold text-slate-800">合订本功能</h2>
+                    <span class="text-sm text-slate-400 mt-1 ml-2">Collections & Folders</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12">
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">合订本列表页</h3>
+                            <p class="text-sm text-slate-500">文件夹与合订本管理</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="11-合订本列表页.html" title="合订本列表页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">合订本详情页</h3>
+                            <p class="text-sm text-slate-500">合订本统计与分析</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="17-合订本详情页.html" title="合订本详情页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">合订本Chat页</h3>
+                            <p class="text-sm text-slate-500">跨文件智能分析</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="18-合订本Chat页.html" title="合订本Chat页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. 账户与服务 -->
+            <section>
+                <div class="flex items-center gap-3 mb-8 pb-4 border-b border-slate-200">
+                    <div class="w-1.5 h-8 bg-brand-600 rounded-full"></div>
+                    <h2 class="text-2xl font-bold text-slate-800">账户与服务</h2>
+                    <span class="text-sm text-slate-400 mt-1 ml-2">Account & Services</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12">
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">账户设置页</h3>
+                            <p class="text-sm text-slate-500">用户设置与偏好</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="12-账户设置页.html" title="账户设置页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">转写额度页</h3>
+                            <p class="text-sm text-slate-500">转写服务管理</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="9-转写额度页.html" title="转写额度页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-brand-600 transition-colors">录音日历页</h3>
+                            <p class="text-sm text-slate-500">日历视图录音记录</p>
+                        </div>
+                        <div class="phone-mockup transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-brand-500/20 group-hover:-translate-y-2">
+                            <div class="phone-notch"></div>
+                            <iframe src="13-录音日历页.html" title="录音日历页" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- 底部 -->
+        <div class="mt-24 pt-8 border-t border-slate-200 text-center">
+            <div class="flex justify-center gap-2 mb-2">
+                <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+                <span class="w-2 h-2 rounded-full bg-brand-500 opacity-50"></span>
+                <span class="w-2 h-2 rounded-full bg-brand-500 opacity-25"></span>
+            </div>
+            <h3 class="text-sm font-semibold text-slate-600">🎯 Design Documentation</h3>
+            <p class="text-sm text-slate-400 mt-1">Created by wangyan • 2025-11-24</p>
+        </div>
+    </div>
+
+</body>
+</html>

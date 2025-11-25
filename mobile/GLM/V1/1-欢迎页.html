@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎页</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
+        ::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, and Opera */
+        }
+        .mockup-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            background-color: #f6f6f6;
+        }
+        .phone-mockup {
+            width: 400px;
+            height: 850px;
+            background-color: #111827;
+            border-radius: 40px;
+            padding: 15px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .screen {
+            width: 375px;
+            height: 812px;
+            background-color: #ffffff;
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="mockup-container">
+        <div class="phone-mockup">
+            <div class="screen bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1615715873419-33864a6c8b24?q=80&w=1887&auto=format&fit=crop');">
+                <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+                <div class="absolute inset-0 flex flex-col text-white">
+                    
+                    <!-- Status Bar -->
+                    <div class="flex justify-between items-center px-8 pt-4 text-sm font-medium">
+                        <span>9:41</span>
+                        <div class="flex items-center space-x-1">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 3.293a1 1 0 011.414 0l.001.001a1 1 0 010 1.414l-12 12a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L6 14.586l11.293-11.293z"/></svg>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 1.5a8.5 8.5 0 100 17 8.5 8.5 0 000-17zM8.5 4a1.5 1.5 0 013 0v6a1.5 1.5 0 01-3 0V4zM10 15a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M17.928 5.072A.75.75 0 0017.25 4.5h-2.5a.75.75 0 000 1.5h.99a6.494 6.494 0 01-5.91 4.908.75.75 0 00-.58.736v5.448a.75.75 0 001.498.062V12A5.002 5.002 0 0015.75 6h.5a.75.75 0 00.678-.928zM3.428 5.072A.75.75 0 012.75 4.5h2.5a.75.75 0 010 1.5h-.99a6.494 6.494 0 005.91 4.908.75.75 0 01.58.736v5.448a.75.75 0 01-1.498.062V12A5.002 5.002 0 014.25 6h-.5a.75.75 0 01-.678-.928z" clip-rule="evenodd" /></svg>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex flex-col justify-center items-center px-8 text-center -mt-10">
+                        <h1 class="text-4xl font-bold tracking-tight">记录瞬间，洞见未来</h1>
+                        <p class="text-base text-gray-200 mt-4 max-w-sm">从语音到文字，再到智能摘要，让每一句都更有价值。</p>
+                    </div>
+
+                    <div class="px-8 pb-12">
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl shadow-lg transition-all duration-300">
+                            手机号登录/注册
+                        </button>
+                        <p class="text-xs text-gray-300 text-center mt-4">
+                            登录即代表您同意
+                            <a href="#" class="underline">《用户协议》</a>
+                            和
+                            <a href="#" class="underline">《隐私政策》</a>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

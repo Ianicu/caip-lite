@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能录音助手 - 录音日历</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: #f8fafc;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 12px #000;
+            border-radius: 40px;
+        }
+        .status-bar {
+            height: 44px;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: #334155;
+            font-size: 14px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .header {
+            background: white;
+            padding: 60px 20px 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .content-area {
+            padding: 20px;
+            padding-bottom: 100px;
+            background: white;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .month-year {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .nav-button {
+            background: #f3f4f6;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .nav-button:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+        .weekday {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            padding: 10px 0;
+        }
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+        .calendar-day:hover {
+            background: #f1f5f9;
+        }
+        .calendar-day.today {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        .calendar-day.has-recordings {
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
+        .calendar-day.has-recordings.today {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .day-number {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        .recording-indicator {
+            width: 4px;
+            height: 4px;
+            background: #3b82f6;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 6px;
+        }
+        .calendar-day.has-recordings .recording-indicator {
+            background: white;
+        }
+        .calendar-day.today .recording-indicator {
+            background: white;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            text-align: center;
+        }
+        .stat-item {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 15px 10px;
+            backdrop-filter: blur(10px);
+        }
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        .day-recordings {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+        }
+        .day-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .day-title i {
+            color: #667eea;
+            margin-right: 8px;
+        }
+        .recording-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .recording-item:last-child {
+            border-bottom: none;
+        }
+        .recording-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        .recording-info {
+            flex: 1;
+        }
+        .recording-name {
+            font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        .recording-time {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        .recording-duration {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div>9:41</div>
+            <div>
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <div class="header">
+            <div class="flex items-center">
+                <i class="fas fa-arrow-left text-gray-600 mr-4 text-lg"></i>
+                <h1 class="text-xl font-bold text-gray-800 flex-1">录音日历</h1>
+                <i class="fas fa-calendar-alt text-blue-600 text-lg"></i>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- 月份导航 -->
+            <div class="calendar-header">
+                <button class="nav-button">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <h2 class="month-year">2024年11月</h2>
+                <button class="nav-button">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- 日历网格 -->
+            <div class="calendar-grid">
+                <!-- 星期标题 -->
+                <div class="weekday">日</div>
+                <div class="weekday">一</div>
+                <div class="weekday">二</div>
+                <div class="weekday">三</div>
+                <div class="weekday">四</div>
+                <div class="weekday">五</div>
+                <div class="weekday">六</div>
+
+                <!-- 日期 -->
+                <div class="calendar-day" style="opacity: 0.3;">
+                    <div class="day-number">29</div>
+                </div>
+                <div class="calendar-day" style="opacity: 0.3;">
+                    <div class="day-number">30</div>
+                </div>
+                <div class="calendar-day" style="opacity: 0.3;">
+                    <div class="day-number">31</div>
+                </div>
+                <div class="calendar-day has-recordings">
+                    <div class="day-number">1</div>
+                    <div class="recording-indicator"></div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">2</div>
+                </div>
+                <div class="calendar-day has-recordings">
+                    <div class="day-number">3</div>
+                    <div class="recording-indicator"></div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">4</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">5</div>
+                </div>
+                <div class="calendar-day has-recordings">
+                    <div class="day-number">6</div>
+                    <div class="recording-indicator"></div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">7</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">8</div>
+                </div>
+                <div class="calendar-day has-recordings">
+                    <div class="day-number">9</div>
+                    <div class="recording-indicator"></div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">10</div>
+                </div>
+                <div class="calendar-day has-recordings">
+                    <div class="day-number">11</div>
+                    <div class="recording-indicator"></div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">12</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">13</div>
+                </div>
+                <div class="calendar-day has-recordings">
+                    <div class="day-number">14</div>
+                    <div class="recording-indicator"></div>
+                </div>
+                <div class="calendar-day has-recordings">
+                    <div class="day-number">15</div>
+                    <div class="recording-indicator"></div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">16</div>
+                </div>
+                <div class="calendar-day has-recordings">
+                    <div class="day-number">17</div>
+                    <div class="recording-indicator"></div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">18</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">19</div>
+                </div>
+                <div class="calendar-day has-recordings">
+                    <div class="day-number">20</div>
+                    <div class="recording-indicator"></div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">21</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">22</div>
+                </div>
+                <div class="calendar-day has-recordings">
+                    <div class="day-number">23</div>
+                    <div class="recording-indicator"></div>
+                </div>
+                <div class="calendar-day today has-recordings">
+                    <div class="day-number">24</div>
+                    <div class="recording-indicator"></div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">25</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">26</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">27</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">28</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">29</div>
+                </div>
+                <div class="calendar-day">
+                    <div class="day-number">30</div>
+                </div>
+            </div>
+
+            <!-- 月度统计 -->
+            <div class="stats-card">
+                <h3 class="text-lg font-semibold mb-4">11月录音统计</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">录音天数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">24</div>
+                        <div class="stat-label">录音文件</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">38.5</div>
+                        <div class="stat-label">总时长(h)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 今日录音 -->
+            <div class="day-recordings">
+                <h3 class="day-title">
+                    <i class="fas fa-microphone-alt"></i>
+                    今日录音 (11月24日)
+                </h3>
+
+                <div class="recording-item">
+                    <div class="recording-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="recording-info">
+                        <div class="recording-name">产品讨论会议</div>
+                        <div class="recording-time">10:30 开始</div>
+                    </div>
+                    <div class="recording-duration">45分钟</div>
+                </div>
+
+                <div class="recording-item">
+                    <div class="recording-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="recording-info">
+                        <div class="recording-name">团队周会</div>
+                        <div class="recording-time">14:00 开始</div>
+                    </div>
+                    <div class="recording-duration">30分钟</div>
+                </div>
+
+                <div class="recording-item">
+                    <div class="recording-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="recording-info">
+                        <div class="recording-name">项目思路整理</div>
+                        <div class="recording-time">16:30 开始</div>
+                    </div>
+                    <div class="recording-duration">15分钟</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

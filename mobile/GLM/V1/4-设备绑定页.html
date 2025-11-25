@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能录音助手 - 设备绑定</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: #f8fafc;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 12px #000;
+            border-radius: 40px;
+        }
+        .status-bar {
+            height: 44px;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: #334155;
+            font-size: 14px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 30px 30px;
+        }
+        .content-area {
+            background: white;
+            border-radius: 30px 30px 0 0;
+            margin-top: -30px;
+            padding: 30px 25px;
+            min-height: calc(812px - 180px + 30px);
+        }
+        .scan-area {
+            width: 200px;
+            height: 200px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 20px;
+            margin: 20px auto 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            position: relative;
+            overflow: hidden;
+        }
+        .scan-area::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(102, 126, 234, 0.3), transparent);
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: -100%; }
+            100% { top: 100%; }
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .bind-button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .bind-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        .bind-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .tab-button {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        .device-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #e2e8f0;
+        }
+        .success-animation {
+            width: 60px;
+            height: 60px;
+            background: #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            animation: success 0.5s ease-in-out;
+        }
+
+        @keyframes success {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div>9:41</div>
+            <div>
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <div class="gradient-bg">
+            <div class="text-center text-white">
+                <i class="fas fa-link text-4xl mb-3"></i>
+                <h1 class="text-2xl font-bold">设备绑定</h1>
+                <p class="text-sm opacity-80 mt-2">连接您的智能录音设备</p>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- 标签切换 -->
+            <div class="flex justify-center mb-6">
+                <button class="tab-button active">扫码绑定</button>
+                <button class="tab-button">手动输入</button>
+            </div>
+
+            <!-- 扫码绑定区域 -->
+            <div id="scan-bind">
+                <div class="scan-area">
+                    <i class="fas fa-qrcode text-4xl text-gray-400 mb-3"></i>
+                    <p class="text-gray-500 text-sm">将设备二维码放入框内</p>
+                </div>
+
+                <div class="text-center">
+                    <p class="text-gray-600 mb-4">或</p>
+                    <button class="text-blue-600 font-medium">
+                        <i class="fas fa-camera mr-2"></i>从相册选择二维码
+                    </button>
+                </div>
+            </div>
+
+            <!-- 手动输入区域 (默认隐藏) -->
+            <div id="manual-bind" style="display: none;">
+                <div class="mb-4">
+                    <label class="text-sm text-gray-600 mb-2 block">设备ID</label>
+                    <input type="text" class="input-field" placeholder="请输入设备ID">
+                </div>
+
+                <div class="mb-6">
+                    <label class="text-sm text-gray-600 mb-2 block">设备名称</label>
+                    <input type="text" class="input-field" placeholder="为您的设备起个名字">
+                </div>
+
+                <button class="bind-button">
+                    <i class="fas fa-link mr-2"></i>绑定设备
+                </button>
+            </div>
+
+            <!-- 已绑定设备示例 -->
+            <div class="mt-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">已绑定设备</h3>
+
+                <div class="device-card">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-microphone-alt text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">会议室录音笔</h4>
+                                <p class="text-sm text-gray-500">设备ID: REC001</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                            <span class="text-sm text-green-600">在线</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

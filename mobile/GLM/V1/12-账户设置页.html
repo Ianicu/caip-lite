@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能录音助手 - 账户设置</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: #f8fafc;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 12px #000;
+            border-radius: 40px;
+        }
+        .status-bar {
+            height: 44px;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: #334155;
+            font-size: 14px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 20px 30px;
+            color: white;
+        }
+        .profile-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+        .content-area {
+            background: white;
+            border-radius: 30px 30px 0 0;
+            margin-top: -20px;
+            padding: 30px 20px;
+            min-height: calc(812px - 200px + 20px);
+        }
+        .settings-section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .section-title i {
+            color: #667eea;
+            margin-right: 8px;
+        }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .setting-item:hover {
+            background: #f8fafc;
+            margin: 0 -20px;
+            padding: 16px 20px;
+        }
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        .setting-left {
+            display: flex;
+            align-items: center;
+        }
+        .setting-icon {
+            width: 40px;
+            height: 40px;
+            background: #f8fafc;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #667eea;
+        }
+        .setting-info {
+            flex: 1;
+        }
+        .setting-name {
+            font-size: 15px;
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        .setting-desc {
+            font-size: 13px;
+            color: #9ca3af;
+        }
+        .toggle-switch {
+            width: 48px;
+            height: 28px;
+            background: #cbd5e1;
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-switch.active {
+            background: #667eea;
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .toggle-switch.active::after {
+            left: 23px;
+        }
+        .logout-button {
+            width: 100%;
+            background: #fef2f2;
+            color: #ef4444;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border: 1px solid #fecaca;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 30px;
+        }
+        .logout-button:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+        }
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 20px;
+            border-radius: 0 0 40px 40px;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #94a3b8;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .nav-item.active {
+            color: #667eea;
+        }
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div>9:41</div>
+            <div>
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <div class="header">
+            <div class="profile-section">
+                <div class="avatar">
+                    <i class="fas fa-user text-white text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold mb-1">张明</h2>
+                    <p class="text-sm opacity-80">138****8888</p>
+                    <p class="text-xs opacity-70 mt-1">专业版用户 • 已加入120天</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- 账户信息 -->
+            <div class="settings-section">
+                <h3 class="section-title">
+                    <i class="fas fa-user-circle"></i>
+                    账户信息
+                </h3>
+
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="setting-info">
+                            <div class="setting-name">编辑资料</div>
+                            <div class="setting-desc">修改昵称、头像等个人信息</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="setting-info">
+                            <div class="setting-name">账号安全</div>
+                            <div class="setting-desc">修改密码、绑定手机等</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon">
+                            <i class="fas fa-fingerprint"></i>
+                        </div>
+                        <div class="setting-info">
+                            <div class="setting-name">声纹管理</div>
+                            <div class="setting-desc">重新录制或更新声纹</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- 应用设置 -->
+            <div class="settings-section">
+                <h3 class="section-title">
+                    <i class="fas fa-cog"></i>
+                    应用设置
+                </h3>
+
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="setting-info">
+                            <div class="setting-name">通知设置</div>
+                            <div class="setting-desc">管理推送通知和提醒</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch active"></div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div class="setting-info">
+                            <div class="setting-name">自动下载</div>
+                            <div class="setting-desc">WiFi环境下自动下载音频</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch"></div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <div class="setting-info">
+                            <div class="setting-name">语言设置</div>
+                            <div class="setting-desc">简体中文</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- 隐私设置 -->
+            <div class="settings-section">
+                <h3 class="section-title">
+                    <i class="fas fa-lock"></i>
+                    隐私设置
+                </h3>
+
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon">
+                            <i class="fas fa-eye-slash"></i>
+                        </div>
+                        <div class="setting-info">
+                            <div class="setting-name">隐私模式</div>
+                            <div class="setting-desc">隐藏敏感录音内容</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch"></div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon">
+                            <i class="fas fa-trash-alt"></i>
+                        </div>
+                        <div class="setting-info">
+                            <div class="setting-name">数据清理</div>
+                            <div class="setting-desc">清理缓存和临时文件</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- 其他 -->
+            <div class="settings-section">
+                <h3 class="section-title">
+                    <i class="fas fa-ellipsis-h"></i>
+                    其他
+                </h3>
+
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="setting-info">
+                            <div class="setting-name">帮助中心</div>
+                            <div class="setting-desc">常见问题和使用指南</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-left">
+                        <div class="setting-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="setting-info">
+                            <div class="setting-name">关于我们</div>
+                            <div class="setting-desc">版本 2.1.0</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- 退出登录 -->
+            <button class="logout-button">
+                <i class="fas fa-sign-out-alt mr-2"></i>
+                退出登录
+            </button>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <div class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>主页</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-microphone-alt"></i>
+                <span>录音</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-folder"></i>
+                <span>合订本</span>
+            </div>
+            <div class="nav-item active">
+                <i class="fas fa-user"></i>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

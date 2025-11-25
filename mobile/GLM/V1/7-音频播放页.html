@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能录音助手 - 音频播放</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: #f8fafc;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 12px #000;
+            border-radius: 40px;
+        }
+        .status-bar {
+            height: 44px;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: #334155;
+            font-size: 14px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 20px 30px;
+            color: white;
+        }
+        .audio-player {
+            background: white;
+            border-radius: 30px 30px 0 0;
+            margin-top: -20px;
+            padding: 30px 20px;
+            position: relative;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            position: relative;
+            margin: 20px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+            width: 35%;
+            position: relative;
+        }
+        .progress-handle {
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 50%;
+            position: absolute;
+            right: -8px;
+            top: -6px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        .control-button {
+            background: transparent;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .control-button.play {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        .control-button:hover {
+            transform: scale(1.1);
+        }
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        .transcript-text {
+            line-height: 1.8;
+            color: #374151;
+            font-size: 15px;
+        }
+        .speaker-tag {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 8px;
+        }
+        .speaker-tag.me {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .waveform-container {
+            height: 80px;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .waveform {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 40px;
+        }
+        .wave-bar {
+            width: 3px;
+            background: #cbd5e1;
+            border-radius: 1px;
+            transition: all 0.3s;
+        }
+        .wave-bar.active {
+            background: #667eea;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .action-button {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div>9:41</div>
+            <div>
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <div class="header">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-arrow-left mr-4 text-lg"></i>
+                <h1 class="text-lg font-semibold flex-1">产品讨论会议</h1>
+            </div>
+            <div class="flex justify-between text-sm opacity-90">
+                <span>2024年11月24日 10:30</span>
+                <span>时长：45分钟</span>
+            </div>
+        </div>
+
+        <div class="audio-player">
+            <div class="action-buttons">
+                <button class="action-button">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+                <button class="action-button">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-button">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+
+            <!-- 波形图 -->
+            <div class="waveform-container">
+                <div class="waveform">
+                    <div class="wave-bar" style="height: 12px"></div>
+                    <div class="wave-bar active" style="height: 24px"></div>
+                    <div class="wave-bar" style="height: 18px"></div>
+                    <div class="wave-bar active" style="height: 30px"></div>
+                    <div class="wave-bar" style="height: 15px"></div>
+                    <div class="wave-bar" style="height: 25px"></div>
+                    <div class="wave-bar active" style="height: 20px"></div>
+                    <div class="wave-bar" style="height: 28px"></div>
+                    <div class="wave-bar" style="height: 16px"></div>
+                    <div class="wave-bar" style="height: 22px"></div>
+                    <div class="wave-bar" style="height: 19px"></div>
+                    <div class="wave-bar active" style="height: 26px"></div>
+                    <div class="wave-bar" style="height: 14px"></div>
+                    <div class="wave-bar" style="height: 23px"></div>
+                    <div class="wave-bar" style="height: 17px"></div>
+                    <div class="wave-bar" style="height: 29px"></div>
+                    <div class="wave-bar active" style="height: 21px"></div>
+                    <div class="wave-bar" style="height: 13px"></div>
+                    <div class="wave-bar" style="height: 27px"></div>
+                    <div class="wave-bar" style="height: 11px"></div>
+                </div>
+            </div>
+
+            <!-- 播放进度 -->
+            <div class="progress-bar">
+                <div class="progress-fill">
+                    <div class="progress-handle"></div>
+                </div>
+            </div>
+            <div class="flex justify-between text-sm text-gray-500 mb-4">
+                <span>15:42</span>
+                <span>45:00</span>
+            </div>
+
+            <!-- 播放控制 -->
+            <div class="control-buttons">
+                <button class="control-button">
+                    <i class="fas fa-backward text-xl"></i>
+                </button>
+                <button class="control-button">
+                    <i class="fas fa-redo text-xl"></i>
+                </button>
+                <button class="control-button play">
+                    <i class="fas fa-pause text-2xl"></i>
+                </button>
+                <button class="control-button">
+                    <i class="fas fa-forward text-xl"></i>
+                </button>
+                <button class="control-button">
+                    <i class="fas fa-tachometer-alt text-xl"></i>
+                </button>
+            </div>
+
+            <!-- 选项卡 -->
+            <div class="tab-container">
+                <button class="tab-button active">转写文本</button>
+                <button class="tab-button">AI摘要</button>
+                <button class="tab-button">关键词</button>
+                <button class="tab-button">笔记</button>
+            </div>
+
+            <!-- 转写文本内容 -->
+            <div class="transcript-text">
+                <p class="mb-4">
+                    <span class="speaker-tag me">我</span>
+                    好的，今天我们来讨论一下新产品发布会的准备工作，首先请市场部的同事汇报一下当前的进展。
+                </p>
+                <p class="mb-4">
+                    <span class="speaker-tag">李经理</span>
+                    我们已经完成了发布会主题的确定，"智启未来"作为本次发布会的核心主题。场地方面已经预定了国际会议中心，时间是12月15日下午2点。
+                </p>
+                <p class="mb-4">
+                    <span class="speaker-tag me">我</span>
+                    很好，那么媒体邀请方面的情况如何？目标覆盖哪些媒体平台？
+                </p>
+                <p class="mb-4">
+                    <span class="speaker-tag">王主管</span>
+                    我们计划邀请50家媒体，包括主流科技媒体、行业垂直媒体和自媒体大V。目前已经确认了35家，还有15家在跟进中。重点会覆盖36氪、虎嗅、钛媒体等头部科技媒体。
+                </p>
+                <p class="mb-4">
+                    <span class="speaker-tag">张总</span>
+                    产品的演示环节需要特别注意，技术团队要确保演示流程的流畅性，特别是核心功能demo的稳定性。
+                </p>
+                <p class="mb-4">
+                    <span class="speaker-tag me"></span>
+                    技术团队已经进行了三轮内部测试，demo的稳定性达到了99.8%。现场我们还会安排两名技术支持人员，确保万无一失。
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

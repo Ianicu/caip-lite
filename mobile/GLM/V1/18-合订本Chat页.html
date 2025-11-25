@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能录音助手 - 合订本AI分析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: #f8fafc;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 12px #000;
+            border-radius: 40px;
+        }
+        .status-bar {
+            height: 44px;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: #334155;
+            font-size: 14px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 20px 20px;
+            color: white;
+        }
+        .chat-container {
+            flex: 1;
+            background: white;
+            border-radius: 30px 30px 0 0;
+            margin-top: -20px;
+            padding: 20px;
+            height: calc(812px - 160px);
+            display: flex;
+            flex-direction: column;
+        }
+        .folder-info {
+            background: #f0f9ff;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3b82f6;
+        }
+        .folder-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 4px;
+        }
+        .folder-stats {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .message {
+            margin-bottom: 16px;
+            max-width: 85%;
+        }
+        .message.user {
+            align-self: flex-end;
+        }
+        .message.ai {
+            align-self: flex-start;
+        }
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message.ai .message-bubble {
+            background: #f1f5f9;
+            color: #374151;
+            border-bottom-left-radius: 4px;
+        }
+        .context-info {
+            background: #fef3c7;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #fde68a;
+        }
+        .context-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+        }
+        .context-title i {
+            margin-right: 6px;
+        }
+        .context-files {
+            font-size: 11px;
+            color: #78350f;
+            line-height: 1.4;
+        }
+        .suggested-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .question-chip {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .question-chip:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+        }
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 14px;
+            background: #f8fafc;
+            transition: all 0.3s;
+        }
+        .message-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .send-button {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .send-button:hover {
+            transform: scale(1.05);
+        }
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 8px 12px;
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div>9:41</div>
+            <div>
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <div class="header">
+            <div class="flex items-center">
+                <i class="fas fa-arrow-left mr-4 text-lg"></i>
+                <div class="flex-1">
+                    <h1 class="text-lg font-semibold">合订本 AI 分析</h1>
+                    <p class="text-xs opacity-80">基于15个录音文件的智能分析</p>
+                </div>
+                <i class="fas fa-history text-lg"></i>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="flex-1 overflow-y-auto">
+                <!-- 合订本信息 -->
+                <div class="folder-info">
+                    <div class="folder-name">📁 工作项目合订本</div>
+                    <div class="folder-stats">
+                        15个文件 • 24.5小时 • 326个关键词 • 跨度4个月
+                    </div>
+                </div>
+
+                <!-- AI欢迎消息 -->
+                <div class="message ai">
+                    <div class="message-bubble">
+                        🎯 我已分析您的"工作项目"合订本，包含15个录音文件。我可以帮您：<br><br>
+
+                        📊 <strong>统计分析</strong>：时间分布、主题趋势、关键词频次<br>
+                        🔍 <strong>深度挖掘</strong>：跨文件关联分析、项目进展追踪<br>
+                        💡 <strong>智能总结</strong>：项目整体回顾、关键成果提炼<br>
+                        ❓ <strong>问题解答</strong>：基于所有文件内容的智能问答
+                    </div>
+                </div>
+
+                <!-- 上下文信息 -->
+                <div class="context-info">
+                    <div class="context-title">
+                        <i class="fas fa-info-circle"></i>
+                        分析范围
+                    </div>
+                    <div class="context-files">
+                        正在分析：产品讨论会议、头脑风暴会议、周会汇报、客户需求访谈等15个文件，时间跨度从10月到2月
+                    </div>
+                </div>
+
+                <!-- 建议问题 -->
+                <div class="suggested-questions">
+                    <div class="question-chip">项目的整体进展如何？</div>
+                    <div class="question-chip">主要遇到哪些挑战？</div>
+                    <div class="question-chip">关键决策时间线</div>
+                    <div class="question-chip">团队成员贡献分析</div>
+                </div>
+
+                <!-- 用户问题1 -->
+                <div class="message user">
+                    <div class="message-bubble">
+                        总结这个项目的整体进展和关键里程碑
+                    </div>
+                </div>
+
+                <!-- AI回答1 -->
+                <div class="message ai">
+                    <div class="message-bubble">
+                        <strong>📈 项目整体进展分析：</strong><br><br>
+
+                        <strong>🚀 第一阶段（10-11月）：项目启动与规划</strong><br>
+                        • 完成产品发布会的初步规划<br>
+                        • 确定"智启未来"核心主题<br>
+                        • 场地和媒体资源初步对接<br><br>
+
+                        <strong>⚡ 第二阶段（12-1月）：核心开发与测试</strong><br>
+                        • 技术方案基本成型<br>
+                        • Demo稳定性达到99.8%<br>
+                        • 完成三轮内部测试<br><br>
+
+                        <strong>🎯 第三阶段（2月至今）：发布准备</strong><br>
+                        • 媒体邀请策略确定<br>
+                        • 现场技术保障方案完善<br>
+                        • 发布会流程最终确认<br><br>
+
+                        <strong>🏆 关键里程碑：</strong><br>
+                        ✅ 主题确定 • ✅ 技术方案定型 • ✅ 测试通过<br>
+                        ✅ 媒体对接 • ✅ 场地确认 • ✅ 流程演练
+                    </div>
+                </div>
+
+                <!-- 用户问题2 -->
+                <div class="message user">
+                    <div class="message-bubble">
+                        项目中遇到的主要挑战和解决方案是什么？
+                    </div>
+                </div>
+
+                <!-- AI回答2 -->
+                <div class="message ai">
+                    <div class="message-bubble">
+                        <strong>🔧 主要挑战与解决方案：</strong><br><br>
+
+                        <strong>⚠️ 技术挑战：</strong><br>
+                        • <strong>问题：</strong>Demo演示稳定性不足<br>
+                        • <strong>解决方案：</strong>增加3轮内部测试，安排2名现场技术支持<br><                        • <strong>结果：</strong>稳定性从95%提升至99.8%<br><br>
+
+                        <strong>📱 媒体推广挑战：</strong><br>
+                        • <strong>问题：</strong>媒体响应率低于预期<br>
+                        • <strong>解决方案：</strong>扩大邀请范围至50家，重点关注头部科技媒体<br>
+                        • <strong>结果：</strong>已确认35家，覆盖率达到70%<br><br>
+
+                        <strong>⏰ 时间协调挑战：</strong><br>
+                        • <strong>问题：</strong>跨部门协作时间紧张<br>
+                        • <strong>解决方案：</strong>建立周例会机制，明确各环节责任人<br>
+                        • <strong>结果：</strong>项目进度按计划推进<br><br>
+
+                        <strong>💡 经验总结：</strong>提前规划、充分测试、明确分工是成功的关键要素。
+                    </div>
+                </div>
+
+                <!-- 正在输入指示器 -->
+                <div class="message ai">
+                    <div class="message-bubble">
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 输入区域 -->
+            <div class="input-area">
+                <input type="text" class="message-input" placeholder="询问关于项目的任何问题...">
+                <button class="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

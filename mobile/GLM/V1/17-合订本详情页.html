@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能录音助手 - 合订本详情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: #f8fafc;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 12px #000;
+            border-radius: 40px;
+        }
+        .status-bar {
+            height: 44px;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: #334155;
+            font-size: 14px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 20px 30px;
+            color: white;
+        }
+        .content-area {
+            background: white;
+            border-radius: 30px 30px 0 0;
+            margin-top: -20px;
+            padding: 30px 20px;
+            min-height: calc(812px - 200px + 20px);
+            overflow-y: auto;
+        }
+        .folder-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-size: 24px;
+        }
+        .folder-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .folder-meta {
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 25px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px 15px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .section-title i {
+            color: #667eea;
+            margin-right: 8px;
+        }
+        .keyword-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .keyword-tag {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid #e2e8f0;
+        }
+        .keyword-tag.large {
+            font-size: 15px;
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .keyword-tag.medium {
+            font-size: 14px;
+            background: #dbeafe;
+            color: #1e40af;
+            border-color: #3b82f6;
+        }
+        .timeline-chart {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            height: 180px;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+        }
+        .chart-bar {
+            width: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .chart-bar:hover {
+            opacity: 0.8;
+        }
+        .chart-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: #64748b;
+            white-space: nowrap;
+        }
+        .file-list {
+            margin-bottom: 30px;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .file-item:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        .file-info {
+            flex: 1;
+        }
+        .file-name {
+            font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        .file-date {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        .file-duration {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .action-button {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .action-button.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .action-button.secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+        .action-button:hover {
+            transform: translateY(-1px);
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div>9:41</div>
+            <div>
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <div class="header">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-arrow-left mr-4 text-lg"></i>
+                <div class="flex-1 text-right">
+                    <i class="fas fa-edit text-lg mr-3"></i>
+                    <i class="fas fa-ellipsis-v text-lg"></i>
+                </div>
+            </div>
+
+            <div class="folder-icon">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <h2 class="folder-title">工作项目</h2>
+            <p class="folder-meta">创建于 2024年10月15日 • 最后更新：2天前</p>
+        </div>
+
+        <div class="content-area">
+            <!-- 统计数据 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">15</div>
+                    <div class="stat-label">录音文件</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">24.5</div>
+                    <div class="stat-label">总时长(h)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">326</div>
+                    <div class="stat-label">关键词</div>
+                </div>
+            </div>
+
+            <!-- 关键词云 -->
+            <div class="section-title">
+                <i class="fas fa-tags"></i>
+                热门关键词
+            </div>
+            <div class="keyword-cloud">
+                <div class="keyword-tag large">产品发布</div>
+                <div class="keyword-tag medium">用户体验</div>
+                <div class="keyword-tag">市场策略</div>
+                <div class="keyword-tag large">技术方案</div>
+                <div class="keyword-tag medium">项目进度</div>
+                <div class="keyword-tag">团队协作</div>
+                <div class="keyword-tag">客户需求</div>
+                <div class="keyword-tag medium">数据分析</div>
+                <div class="keyword-tag">功能优化</div>
+                <div class="keyword-tag">测试计划</div>
+            </div>
+
+            <!-- 时间分布图 -->
+            <div class="section-title">
+                <i class="fas fa-chart-bar"></i>
+                时间分布分析
+            </div>
+            <div class="timeline-chart">
+                <div class="chart-bar" style="height: 60%;">
+                    <div class="chart-label">10月</div>
+                </div>
+                <div class="chart-bar" style="height: 80%;">
+                    <div class="chart-label">11月</div>
+                </div>
+                <div class="chart-bar" style="height: 45%;">
+                    <div class="chart-label">12月</div>
+                </div>
+                <div class="chart-bar" style="height: 70%;">
+                    <div class="chart-label">1月</div>
+                </div>
+                <div class="chart-bar" style="height: 90%;">
+                    <div class="chart-label">2月</div>
+                </div>
+            </div>
+
+            <!-- 文件列表 -->
+            <div class="section-title">
+                <i class="fas fa-folder-open"></i>
+                包含文件
+            </div>
+            <div class="file-list">
+                <div class="file-item">
+                    <div class="file-icon">
+                        <i class="fas fa-microphone-alt"></i>
+                    </div>
+                    <div class="file-info">
+                        <div class="file-name">产品讨论会议</div>
+                        <div class="file-date">2024-11-24 10:30</div>
+                    </div>
+                    <div class="file-duration">45分钟</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="file-info">
+                        <div class="file-name">头脑风暴会议</div>
+                        <div class="file-date">2024-11-21 14:00</div>
+                    </div>
+                    <div class="file-duration">1小时</div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="file-info">
+                        <div class="file-name">周会汇报</div>
+                        <div class="file-date">2024-11-20 09:15</div>
+                    </div>
+                    <div class="file-duration">25分钟</div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="action-buttons">
+                <button class="action-button secondary">
+                    <i class="fas fa-magic mr-2"></i>
+                    生成摘要
+                </button>
+                <button class="action-button primary">
+                    <i class="fas fa-comments mr-2"></i>
+                    AI 分析
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能录音助手 - AI Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: #f8fafc;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 12px #000;
+            border-radius: 40px;
+        }
+        .status-bar {
+            height: 44px;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: #334155;
+            font-size: 14px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 20px 20px;
+            color: white;
+        }
+        .chat-container {
+            flex: 1;
+            background: white;
+            border-radius: 30px 30px 0 0;
+            margin-top: -20px;
+            padding: 20px;
+            height: calc(812px - 160px);
+            display: flex;
+            flex-direction: column;
+        }
+        .message {
+            margin-bottom: 16px;
+            max-width: 85%;
+        }
+        .message.user {
+            align-self: flex-end;
+        }
+        .message.ai {
+            align-self: flex-start;
+        }
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message.ai .message-bubble {
+            background: #f1f5f9;
+            color: #374151;
+            border-bottom-left-radius: 4px;
+        }
+        .quick-questions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .quick-question {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .quick-question:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+        }
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 14px;
+            background: #f8fafc;
+            transition: all 0.3s;
+        }
+        .message-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .send-button {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .send-button:hover {
+            transform: scale(1.05);
+        }
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 8px 12px;
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div>9:41</div>
+            <div>
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <div class="header">
+            <div class="flex items-center">
+                <i class="fas fa-arrow-left mr-4 text-lg"></i>
+                <div class="flex-1">
+                    <h1 class="text-lg font-semibold">AI 智能助手</h1>
+                    <p class="text-xs opacity-80">基于录音内容的智能问答</p>
+                </div>
+                <i class="fas fa-history text-lg"></i>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="flex-1 overflow-y-auto">
+                <!-- AI欢迎消息 -->
+                <div class="message ai">
+                    <div class="message-bubble">
+                        👋 您好！我是您的AI助手，已分析了您的会议录音内容。您可以询问关于会议的任何问题，比如：
+                    </div>
+                </div>
+
+                <!-- 快捷问题 -->
+                <div class="quick-questions">
+                    <div class="quick-question">会议总结了什么？</div>
+                    <div class="quick-question">有哪些待办事项？</div>
+                    <div class="quick-question">关键决策是什么？</div>
+                    <div class="quick-question">下一步计划？</div>
+                </div>
+
+                <!-- 用户问题1 -->
+                <div class="message user">
+                    <div class="message-bubble">
+                        请总结一下这次会议的主要内容和决策
+                    </div>
+                </div>
+
+                <!-- AI回答1 -->
+                <div class="message ai">
+                    <div class="message-bubble">
+                        <strong>📋 会议核心内容总结：</strong><br><br>
+
+                        <strong>🎯 会议主题：</strong>新产品发布会准备工作<br>
+                        <strong>📅 时间地点：</strong>12月15日 下午2点 国际会议中心<br><br>
+
+                        <strong>✅ 已确定事项：</strong><br>
+                        • 发布会主题："智启未来"<br>
+                        • 场地预订完成<br>
+                        • 媒体邀请：50家（已确认35家）<br>
+                        • 产品Demo稳定性：99.8%<br><br>
+
+                        <strong>⏰ 下一步行动：</strong><br>
+                        • 跟进剩余15家媒体确认<br>
+                        • 技术团队安排现场支持人员<br>
+                        • 完善演示流程细节
+                    </div>
+                </div>
+
+                <!-- 用户问题2 -->
+                <div class="message user">
+                    <div class="message-bubble">
+                        我在会议中主要负责什么工作？
+                    </div>
+                </div>
+
+                <!-- AI回答2 -->
+                <div class="message ai">
+                    <div class="message-bubble">
+                        <strong>👤 您在会议中的主要贡献：</strong><br><br>
+
+                        <strong>📝 会议主持与协调：</strong><br>
+                        • 主持会议开场，明确讨论目标<br>
+                        • 引导各环节讨论，控制会议节奏<br><br>
+
+                        <strong>💼 关键提问：</strong><br>
+                        • 询问媒体邀请策略和覆盖范围<br>
+                        • 关注产品演示的技术保障<br><br>
+
+                        <strong>🔧 技术协调：</strong><br>
+                        • 汇报技术团队测试结果<br>
+                        • 安排现场技术支持人员配置<br>
+                        • 确保Demo演示稳定性
+                    </div>
+                </div>
+
+                <!-- 正在输入指示器 -->
+                <div class="message ai">
+                    <div class="message-bubble">
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 输入区域 -->
+            <div class="input-area">
+                <input type="text" class="message-input" placeholder="询问关于录音内容的问题...">
+                <button class="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

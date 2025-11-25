@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能录音助手 - 音频编辑</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: #f8fafc;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 12px #000;
+            border-radius: 40px;
+        }
+        .status-bar {
+            height: 44px;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: #334155;
+            font-size: 14px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .header {
+            background: white;
+            padding: 60px 20px 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .content-area {
+            padding: 20px;
+            padding-bottom: 100px;
+            background: white;
+        }
+        .waveform-editor {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 25px 20px;
+            margin-bottom: 25px;
+            border: 2px solid #e2e8f0;
+        }
+        .waveform-container {
+            height: 120px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .waveform {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 60px;
+        }
+        .wave-bar {
+            width: 3px;
+            background: #cbd5e1;
+            border-radius: 1px;
+            transition: all 0.3s;
+        }
+        .wave-bar.selected {
+            background: #667eea;
+        }
+        .time-ruler {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #94a3b8;
+            margin-bottom: 15px;
+            padding: 0 5px;
+        }
+        .selection-info {
+            background: #e0e7ff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .selection-range {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .range-label {
+            font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+        }
+        .range-value {
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 600;
+        }
+        .duration-display {
+            text-align: center;
+            font-size: 16px;
+            color: #374151;
+            font-weight: 600;
+        }
+        .edit-tools {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        .tool-button {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tool-button:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .tool-button i {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        .tool-button span {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .rename-section {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .section-title i {
+            color: #667eea;
+            margin-right: 8px;
+        }
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .action-button {
+            flex: 1;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .action-button.cancel {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+        .action-button.save {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .action-button:hover {
+            transform: translateY(-1px);
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div>9:41</div>
+            <div>
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <div class="header">
+            <div class="flex items-center">
+                <i class="fas fa-times text-gray-600 mr-4 text-lg"></i>
+                <h1 class="text-xl font-bold text-gray-800 flex-1">编辑音频</h1>
+                <button class="text-blue-600 font-medium">完成</button>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- 波形编辑器 -->
+            <div class="waveform-editor">
+                <h3 class="section-title">
+                    <i class="fas fa-wave-square"></i>
+                    波形编辑
+                </h3>
+
+                <!-- 时间标尺 -->
+                <div class="time-ruler">
+                    <span>00:00</span>
+                    <span>05:00</span>
+                    <span>10:00</span>
+                    <span>15:00</span>
+                    <span>20:00</span>
+                </div>
+
+                <!-- 波形显示 -->
+                <div class="waveform-container">
+                    <div class="waveform">
+                        <div class="wave-bar selected" style="height: 12px"></div>
+                        <div class="wave-bar selected" style="height: 24px"></div>
+                        <div class="wave-bar selected" style="height: 18px"></div>
+                        <div class="wave-bar selected" style="height: 30px"></div>
+                        <div class="wave-bar selected" style="height: 15px"></div>
+                        <div class="wave-bar selected" style="height: 25px"></div>
+                        <div class="wave-bar selected" style="height: 20px"></div>
+                        <div class="wave-bar selected" style="height: 28px"></div>
+                        <div class="wave-bar selected" style="height: 16px"></div>
+                        <div class="wave-bar selected" style="height: 22px"></div>
+                        <div class="wave-bar selected" style="height: 19px"></div>
+                        <div class="wave-bar selected" style="height: 26px"></div>
+                        <div class="wave-bar selected" style="height: 14px"></div>
+                        <div class="wave-bar selected" style="height: 23px"></div>
+                        <div class="wave-bar selected" style="height: 17px"></div>
+                        <div class="wave-bar selected" style="height: 29px"></div>
+                        <div class="wave-bar selected" style="height: 21px"></div>
+                        <div class="wave-bar selected" style="height: 13px"></div>
+                        <div class="wave-bar selected" style="height: 27px"></div>
+                        <div class="wave-bar selected" style="height: 11px"></div>
+                        <div class="wave-bar" style="height: 15px"></div>
+                        <div class="wave-bar" style="height: 20px"></div>
+                        <div class="wave-bar" style="height: 18px"></div>
+                        <div class="wave-bar" style="height: 25px"></div>
+                        <div class="wave-bar" style="height: 12px"></div>
+                        <div class="wave-bar" style="height: 22px"></div>
+                        <div class="wave-bar" style="height: 16px"></div>
+                        <div class="wave-bar" style="height: 28px"></div>
+                        <div class="wave-bar" style="height: 14px"></div>
+                        <div class="wave-bar" style="height: 19px"></div>
+                        <div class="wave-bar" style="height: 24px"></div>
+                        <div class="wave-bar" style="height: 17px"></div>
+                        <div class="wave-bar" style="height: 21px"></div>
+                        <div class="wave-bar" style="height: 13px"></div>
+                        <div class="wave-bar" style="height: 26px"></div>
+                        <div class="wave-bar" style="height: 15px"></div>
+                        <div class="wave-bar" style="height: 23px"></div>
+                    </div>
+                </div>
+
+                <!-- 选择信息 -->
+                <div class="selection-info">
+                    <div class="selection-range">
+                        <span class="range-label">选择范围</span>
+                        <span class="range-value">00:00 - 03:45</span>
+                    </div>
+                    <div class="duration-display">
+                        选中时长：<span style="color: #667eea;">3分45秒</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 编辑工具 -->
+            <div class="edit-tools">
+                <div class="tool-button">
+                    <i class="fas fa-cut"></i>
+                    <span>裁剪</span>
+                </div>
+                <div class="tool-button">
+                    <i class="fas fa-copy"></i>
+                    <span>复制</span>
+                </div>
+                <div class="tool-button">
+                    <i class="fas fa-trash"></i>
+                    <span>删除</span>
+                </div>
+                <div class="tool-button">
+                    <i class="fas fa-volume-up"></i>
+                    <span>音量</span>
+                </div>
+            </div>
+
+            <!-- 重命名 -->
+            <div class="rename-section">
+                <h3 class="section-title">
+                    <i class="fas fa-edit"></i>
+                    重命名
+                </h3>
+                <input type="text" class="input-field" value="产品讨论会议" placeholder="请输入新的文件名">
+            </div>
+
+            <!-- 音频信息 -->
+            <div class="rename-section">
+                <h3 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    音频信息
+                </h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <p style="font-size: 13px; color: #6b7280; margin-bottom: 4px;">原始时长</p>
+                        <p style="font-size: 15px; font-weight: 500; color: #374151;">45分00秒</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 13px; color: #6b7280; margin-bottom: 4px;">编辑后时长</p>
+                        <p style="font-size: 15px; font-weight: 500; color: #667eea;">41分15秒</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 13px; color: #6b7280; margin-bottom: 4px;">文件大小</p>
+                        <p style="font-size: 15px; font-weight: 500; color: #374151;">12.3MB</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 13px; color: #6b7280; margin-bottom: 4px;">音频格式</p>
+                        <p style="font-size: 15px; font-weight: 500; color: #374151;">MP3</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="action-buttons">
+                <button class="action-button cancel">
+                    取消
+                </button>
+                <button class="action-button save">
+                    <i class="fas fa-save mr-2"></i>
+                    保存编辑
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

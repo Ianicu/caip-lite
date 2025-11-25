@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能录音助手 - 转写额度</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: #f8fafc;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 12px #000;
+            border-radius: 40px;
+        }
+        .status-bar {
+            height: 44px;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: #334155;
+            font-size: 14px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .header {
+            background: white;
+            padding: 60px 20px 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .content-area {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        .quota-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px 25px;
+            color: white;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+        }
+        .quota-circle {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        .quota-circle svg {
+            transform: rotate(-90deg);
+        }
+        .quota-circle-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.2);
+            stroke-width: 12;
+        }
+        .quota-circle-progress {
+            fill: none;
+            stroke: white;
+            stroke-width: 12;
+            stroke-linecap: round;
+            stroke-dasharray: 471;
+            stroke-dashoffset: 165;
+            transition: stroke-dashoffset 1s ease-in-out;
+        }
+        .quota-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .plan-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .plan-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
+        }
+        .plan-card.recommended {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+        .plan-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .usage-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .usage-item:last-child {
+            border-bottom: none;
+        }
+        .usage-date {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        .usage-desc {
+            font-size: 15px;
+            color: #374151;
+            font-weight: 500;
+        }
+        .usage-amount {
+            text-align: right;
+        }
+        .usage-duration {
+            font-size: 16px;
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .usage-type {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .recharge-button {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        .recharge-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div>9:41</div>
+            <div>
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <div class="header">
+            <div class="flex items-center">
+                <i class="fas fa-arrow-left text-gray-600 mr-4 text-lg"></i>
+                <h1 class="text-xl font-bold text-gray-800 flex-1">转写额度</h1>
+                <i class="fas fa-history text-blue-600 text-lg"></i>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- 额度概览卡片 -->
+            <div class="quota-card">
+                <div class="quota-circle">
+                    <svg width="160" height="160">
+                        <circle cx="80" cy="80" r="75" class="quota-circle-bg"></circle>
+                        <circle cx="80" cy="80" r="75" class="quota-circle-progress"></circle>
+                    </svg>
+                    <div class="quota-text">
+                        <div class="text-3xl font-bold">125</div>
+                        <div class="text-sm opacity-80">小时剩余</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div>
+                        <div class="text-2xl font-bold">200</div>
+                        <div class="text-sm opacity-80">本月总额度</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold">75</div>
+                        <div class="text-sm opacity-80">已使用</div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-white border-opacity-20">
+                    <div class="flex justify-between text-sm">
+                        <span class="opacity-80">额度有效期至</span>
+                        <span>2024年12月31日</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 订阅套餐 -->
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">升级套餐</h3>
+
+            <div class="plan-card">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-lg">基础版</h4>
+                        <p class="text-sm text-gray-500">适合轻度用户</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xl font-bold text-gray-800">¥19<span class="text-sm font-normal">/月</span></div>
+                    </div>
+                </div>
+                <div class="flex items-center text-sm text-gray-600 mb-2">
+                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                    <span>50小时转写额度</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                    <span>基础AI功能</span>
+                </div>
+            </div>
+
+            <div class="plan-card recommended">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center">
+                        <h4 class="font-bold text-gray-800 text-lg mr-2">专业版</h4>
+                        <div class="plan-badge">推荐</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xl font-bold text-gray-800">¥49<span class="text-sm font-normal">/月</span></div>
+                    </div>
+                </div>
+                <div class="flex items-center text-sm text-gray-600 mb-2">
+                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                    <span>200小时转写额度</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-600 mb-2">
+                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                    <span>高级AI分析功能</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                    <span>10人说话人识别</span>
+                </div>
+            </div>
+
+            <div class="plan-card">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-lg">企业版</h4>
+                        <p class="text-sm text-gray-500">适合团队使用</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xl font-bold text-gray-800">¥199<span class="text-sm font-normal">/月</span></div>
+                    </div>
+                </div>
+                <div class="flex items-center text-sm text-gray-600 mb-2">
+                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                    <span>500小时转写额度</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-600 mb-2">
+                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                    <span>全部AI功能</span>
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                    <span>团队协作管理</span>
+                </div>
+            </div>
+
+            <!-- 按需充值 -->
+            <button class="recharge-button mt-6">
+                <i class="fas fa-plus-circle mr-2"></i>
+                按需充值额度
+            </button>
+
+            <!-- 使用记录 -->
+            <h3 class="text-lg font-semibold text-gray-800 mb-3 mt-8">最近使用记录</h3>
+
+            <div class="bg-white rounded-16 p-4">
+                <div class="usage-item">
+                    <div class="flex-1">
+                        <div class="usage-date">2024-11-24 10:30</div>
+                        <div class="usage-desc">产品讨论会议</div>
+                    </div>
+                    <div class="usage-amount">
+                        <div class="usage-duration">-0.75h</div>
+                        <div class="usage-type">实时转写</div>
+                    </div>
+                </div>
+
+                <div class="usage-item">
+                    <div class="flex-1">
+                        <div class="usage-date">2024-11-23 14:00</div>
+                        <div class="usage-desc">AI技术分享会</div>
+                    </div>
+                    <div class="usage-amount">
+                        <div class="usage-duration">-1.25h</div>
+                        <div class="usage-type">实时转写</div>
+                    </div>
+                </div>
+
+                <div class="usage-item">
+                    <div class="flex-1">
+                        <div class="usage-date">2024-11-22 09:15</div>
+                        <div class="usage-desc">客户需求访谈</div>
+                    </div>
+                    <div class="usage-amount">
+                        <div class="usage-duration">-0.5h</div>
+                        <div class="usage-type">文件上传</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

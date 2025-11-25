@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能录音助手 - 总结模板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: #f8fafc;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 12px #000;
+            border-radius: 40px;
+        }
+        .status-bar {
+            height: 44px;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: #334155;
+            font-size: 14px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .header {
+            background: white;
+            padding: 60px 20px 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .content-area {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        .template-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .template-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+        }
+        .template-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+        .template-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .template-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 20px;
+        }
+        .template-icon.blue {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        .template-icon.green {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        .template-icon.orange {
+            background: #fed7aa;
+            color: #ea580c;
+        }
+        .template-icon.purple {
+            background: #e9d5ff;
+            color: #9333ea;
+        }
+        .template-icon.red {
+            background: #fecaca;
+            color: #dc2626;
+        }
+        .template-info {
+            flex: 1;
+        }
+        .template-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        .template-desc {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+        .template-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .feature-tag {
+            background: #f8fafc;
+            color: #475569;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            border: 1px solid #e2e8f0;
+        }
+        .create-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .create-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(102, 126, 234, 0.4);
+        }
+        .apply-button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: sticky;
+            bottom: 0;
+        }
+        .apply-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .apply-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div>9:41</div>
+            <div>
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full"></i>
+            </div>
+        </div>
+
+        <div class="header">
+            <div class="flex items-center">
+                <i class="fas fa-arrow-left text-gray-600 mr-4 text-lg"></i>
+                <h1 class="text-xl font-bold text-gray-800 flex-1">选择总结模板</h1>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- 创建自定义模板 -->
+            <div class="create-custom">
+                <div class="flex items-center">
+                    <div style="width: 50px; height: 50px; background: rgba(255, 255, 255, 0.2); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                        <i class="fas fa-plus text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-1">创建自定义模板</h3>
+                        <p class="text-sm opacity-90">根据您的需求定制专属模板</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 会议纪要模板 -->
+            <div class="template-card selected">
+                <div class="template-header">
+                    <div class="template-icon blue">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="template-info">
+                        <h3 class="template-name">会议纪要</h3>
+                        <p class="template-desc">适合工作会议、团队讨论等场景，重点关注决策、待办事项和责任人</p>
+                    </div>
+                </div>
+                <div class="template-features">
+                    <div class="feature-tag">关键决策</div>
+                    <div class="feature-tag">待办事项</div>
+                    <div class="feature-tag">负责人分配</div>
+                    <div class="feature-tag">时间节点</div>
+                </div>
+            </div>
+
+            <!-- 学习笔记模板 -->
+            <div class="template-card">
+                <div class="template-header">
+                    <div class="template-icon green">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="template-info">
+                        <h3 class="template-name">学习笔记</h3>
+                        <p class="template-desc">适合课程、讲座、培训等学习场景，突出知识要点和关键概念</p>
+                    </div>
+                </div>
+                <div class="template-features">
+                    <div class="feature-tag">核心概念</div>
+                    <div class="feature-tag">知识要点</div>
+                    <div class="feature-tag">实例分析</div>
+                    <div class="feature-tag">总结思考</div>
+                </div>
+            </div>
+
+            <!-- 采访记录模板 -->
+            <div class="template-card">
+                <div class="template-header">
+                    <div class="template-icon orange">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <div class="template-info">
+                        <h3 class="template-name">采访记录</h3>
+                        <p class="template-desc">适合访谈、调研等场景，突出问答内容和重要观点</p>
+                    </div>
+                </div>
+                <div class="template-features">
+                    <div class="feature-tag">问答要点</div>
+                    <div class="feature-tag">核心观点</div>
+                    <div class="feature-tag">背景信息</div>
+                    <div class="feature-tag">关键引用</div>
+                </div>
+            </div>
+
+            <!-- 项目总结模板 -->
+            <div class="template-card">
+                <div class="template-header">
+                    <div class="template-icon purple">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div class="template-info">
+                        <h3 class="template-name">项目总结</h3>
+                        <p class="template-desc">适合项目回顾、阶段性总结等场景，关注成果、问题和改进</p>
+                    </div>
+                </div>
+                <div class="template-features">
+                    <div class="feature-tag">项目成果</div>
+                    <div class="feature-tag">遇到问题</div>
+                    <div class="feature-tag">解决方案</div>
+                    <div class="feature-tag">经验教训</div>
+                </div>
+            </div>
+
+            <!-- 灵感记录模板 -->
+            <div class="template-card">
+                <div class="template-header">
+                    <div class="template-icon red">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="template-info">
+                        <h3 class="template-name">灵感记录</h3>
+                        <p class="template-desc">适合创意思考、头脑风暴等场景，捕捉创意和想法</p>
+                    </div>
+                </div>
+                <div class="template-features">
+                    <div class="feature-tag">核心创意</div>
+                    <div class="feature-tag">想法来源</div>
+                    <div class="feature-tag">延伸思考</div>
+                    <div class="feature-tag">行动计划</div>
+                </div>
+            </div>
+
+            <!-- 应用按钮 -->
+            <button class="apply-button">
+                <i class="fas fa-check mr-2"></i>
+                应用模板：会议纪要
+            </button>
+        </div>
+    </div>
+</body>
+</html>
