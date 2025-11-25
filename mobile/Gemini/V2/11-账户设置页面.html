@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账户设置</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            background-color: #f6f6f6;
+            overflow-x: hidden;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .menu-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .menu-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+        }
+
+        .menu-item.danger {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+        }
+
+        .profile-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: white;
+            font-size: 32px;
+            font-weight: 600;
+        }
+
+        .toggle-switch {
+            width: 48px;
+            height: 28px;
+            background: #e5e7eb;
+            border-radius: 14px;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .toggle-switch.active {
+            background: #2563eb;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active::after {
+            left: 22px;
+        }
+
+        /* 隐藏滚动条 */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        html, body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Mockup样式 */
+        .mockup-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 36px;
+            border: 12px solid #1a1a1a;
+            box-shadow: 0 0 40px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-bar {
+            background: white;
+            padding: 12px 24px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .signal-bar {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            margin-right: 8px;
+        }
+
+        .signal-bar div {
+            width: 3px;
+            background: #10b981;
+            border-radius: 1px;
+        }
+
+        .signal-bar div:nth-child(1) { height: 4px; }
+        .signal-bar div:nth-child(2) { height: 8px; }
+        .signal-bar div:nth-child(3) { height: 12px; }
+        .signal-bar div:nth-child(4) { height: 16px; }
+    </style>
+</head>
+<body>
+    <div class="mockup-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div>9:41</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <div class="signal-bar">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <i class="fas fa-wifi" style="font-size: 14px;"></i>
+                <i class="fas fa-battery-full" style="font-size: 14px;"></i>
+            </div>
+        </div>
+
+        <!-- 头部导航 -->
+        <div class="header-nav">
+            <button style="background: transparent; border: none;">
+                <i class="fas fa-arrow-left" style="font-size: 20px; color: #374151;"></i>
+            </button>
+            <h2 style="font-size: 16px; font-weight: 600; color: #111827;">账户设置</h2>
+            <button style="background: transparent; border: none;">
+                <i class="fas fa-save" style="font-size: 18px; color: #374151;"></i>
+            </button>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div style="padding: 16px; height: calc(812px - 88px); overflow-y: auto;">
+            <!-- 个人信息 -->
+            <div class="profile-section">
+                <div class="avatar" onclick="changeAvatar()">
+                    <span>张</span>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 4px;">张小明</h3>
+                <p style="font-size: 14px; color: #6b7280; margin-bottom: 16px;">138****8888</p>
+                <button style="background: #2563eb; color: white; border: none; padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 500;">
+                    编辑资料
+                </button>
+            </div>
+
+            <!-- 账号设置 -->
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 12px;">账号设置</h3>
+
+                <!-- 昵称 -->
+                <div class="menu-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #dbeafe;">
+                            <i class="fas fa-user" style="color: #1e40af; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #111827; margin-bottom: 2px;">昵称</div>
+                            <div style="font-size: 14px; color: #6b7280;">张小明</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                </div>
+
+                <!-- 手机号 -->
+                <div class="menu-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #dcfce7;">
+                            <i class="fas fa-mobile-alt" style="color: #166534; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #111827; margin-bottom: 2px;">手机号</div>
+                            <div style="font-size: 14px; color: #6b7280;">138****8888</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                </div>
+
+                <!-- 密码 -->
+                <div class="menu-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #fef3c7;">
+                            <i class="fas fa-lock" style="color: #92400e; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #111827; margin-bottom: 2px;">登录密码</div>
+                            <div style="font-size: 14px; color: #6b7280;">已设置</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                </div>
+            </div>
+
+            <!-- 通知设置 -->
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 12px;">通知设置</h3>
+
+                <!-- 录音完成通知 -->
+                <div class="menu-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #f3e8ff;">
+                            <i class="fas fa-bell" style="color: #6b21a8; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #111827; margin-bottom: 2px;">录音完成通知</div>
+                            <div style="font-size: 14px; color: #6b7280;">录音完成时推送通知</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                </div>
+
+                <!-- 转写完成通知 -->
+                <div class="menu-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #ecfdf5;">
+                            <i class="fas fa-language" style="color: #047857; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #111827; margin-bottom: 2px;">转写完成通知</div>
+                            <div style="font-size: 14px; color: #6b7280;">转写完成时推送通知</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                </div>
+
+                <!-- 设备状态通知 -->
+                <div class="menu-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #fee2e2;">
+                            <i class="fas fa-exclamation-triangle" style="color: #dc2626; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #111827; margin-bottom: 2px;">设备状态通知</div>
+                            <div style="font-size: 14px; color: #6b7280;">设备异常时推送通知</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+                </div>
+            </div>
+
+            <!-- 隐私设置 -->
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 12px;">隐私设置</h3>
+
+                <!-- 数据备份 -->
+                <div class="menu-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #dbeafe;">
+                            <i class="fas fa-cloud-upload-alt" style="color: #1e40af; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #111827; margin-bottom: 2px;">自动备份</div>
+                            <div style="font-size: 14px; color: #6b7280;">自动备份录音和转写文本</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                </div>
+
+                <!-- 数据加密 -->
+                <div class="menu-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #f3f4f6;">
+                            <i class="fas fa-shield-alt" style="color: #374151; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #111827; margin-bottom: 2px;">数据加密</div>
+                            <div style="font-size: 14px; color: #6b7280;">加密存储敏感数据</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                </div>
+            </div>
+
+            <!-- 存储 -->
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 12px;">存储管理</h3>
+
+                <!-- 缓存清理 -->
+                <div class="menu-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #fef3c7;">
+                            <i class="fas fa-broom" style="color: #92400e; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #111827; margin-bottom: 2px;">清理缓存</div>
+                            <div style="font-size: 14px; color: #6b7280;">当前缓存 256.5 MB</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                </div>
+            </div>
+
+            <!-- 账号操作 -->
+            <div>
+                <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 12px;">账号操作</h3>
+
+                <!-- 退出登录 -->
+                <div class="menu-item danger">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #fecaca;">
+                            <i class="fas fa-sign-out-alt" style="color: #dc2626; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #dc2626;">退出登录</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #fca5a5; font-size: 16px;"></i>
+                </div>
+
+                <!-- 注销账号 -->
+                <div class="menu-item danger" style="margin-bottom: 0;">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #fecaca;">
+                            <i class="fas fa-user-times" style="color: #dc2626; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #dc2626;">注销账号</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #fca5a5; font-size: 16px;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSwitch(element) {
+            element.classList.toggle('active');
+        }
+
+        function changeAvatar() {
+            // 这里可以添加更换头像的逻辑
+            alert('更换头像功能');
+        }
+
+        // 退出登录确认
+        document.querySelectorAll('.menu-item.danger').forEach(item => {
+            item.addEventListener('click', function() {
+                const text = this.querySelector('.menu-item > div > div').textContent;
+                if (text === '退出登录') {
+                    if (confirm('确定要退出登录吗？')) {
+                        alert('已退出登录');
+                    }
+                } else if (text === '注销账号') {
+                    if (confirm('注销账号将删除所有数据，确定要继续吗？')) {
+                        if (confirm('此操作不可恢复，再次确认是否注销账号？')) {
+                            alert('账号已注销');
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

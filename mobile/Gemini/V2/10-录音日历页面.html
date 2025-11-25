@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>录音日历</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            background-color: #f6f6f6;
+            overflow-x: hidden;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+
+        .calendar-header {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+            padding: 8px 0;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            padding: 4px;
+        }
+
+        .calendar-day:hover {
+            background: #f3f4f6;
+        }
+
+        .calendar-day.today {
+            background: #2563eb;
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-day.has-recording {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+
+        .calendar-day.other-month {
+            color: #9ca3af;
+            background: transparent;
+        }
+
+        .recording-indicator {
+            position: absolute;
+            bottom: 2px;
+            width: 4px;
+            height: 4px;
+            background: #ef4444;
+            border-radius: 50%;
+        }
+
+        .recording-count {
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .day-detail {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .audio-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .audio-item:last-child {
+            border-bottom: none;
+        }
+
+        .audio-icon {
+            width: 36px;
+            height: 36px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .month-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .nav-button {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            transition: all 0.2s ease;
+        }
+
+        .nav-button:hover {
+            background: #f3f4f6;
+        }
+
+        /* 隐藏滚动条 */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        html, body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Mockup样式 */
+        .mockup-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 36px;
+            border: 12px solid #1a1a1a;
+            box-shadow: 0 0 40px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-bar {
+            background: white;
+            padding: 12px 24px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .signal-bar {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            margin-right: 8px;
+        }
+
+        .signal-bar div {
+            width: 3px;
+            background: #10b981;
+            border-radius: 1px;
+        }
+
+        .signal-bar div:nth-child(1) { height: 4px; }
+        .signal-bar div:nth-child(2) { height: 8px; }
+        .signal-bar div:nth-child(3) { height: 12px; }
+        .signal-bar div:nth-child(4) { height: 16px; }
+
+        .chart-container {
+            height: 200px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .mini-chart {
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: #dbeafe;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s ease;
+        }
+
+        .chart-bar:hover {
+            background: #93c5fd;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div>9:41</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <div class="signal-bar">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <i class="fas fa-wifi" style="font-size: 14px;"></i>
+                <i class="fas fa-battery-full" style="font-size: 14px;"></i>
+            </div>
+        </div>
+
+        <!-- 头部导航 -->
+        <div class="header-nav">
+            <button style="background: transparent; border: none;">
+                <i class="fas fa-arrow-left" style="font-size: 20px; color: #374151;"></i>
+            </button>
+            <h2 style="font-size: 16px; font-weight: 600; color: #111827;">录音日历</h2>
+            <button style="background: transparent; border: none;">
+                <i class="fas fa-download" style="font-size: 18px; color: #374151;"></i>
+            </button>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div style="padding: 16px; height: calc(812px - 88px); overflow-y: auto;">
+            <!-- 月度统计 -->
+            <div class="stats-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h3 style="font-size: 16px; font-weight: 600; color: #111827;">11月统计</h3>
+                    <span style="font-size: 14px; color: #6b7280;">2025年</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; font-weight: 600; color: #2563eb;">15</div>
+                        <div style="font-size: 12px; color: #6b7280;">录音天数</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; font-weight: 600; color: #10b981;">42</div>
+                        <div style="font-size: 12px; color: #6b7280;">音频数量</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; font-weight: 600; color: #f59e0b;">8.5h</div>
+                        <div style="font-size: 12px; color: #6b7280;">总时长</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 趋势图表 -->
+            <div class="chart-container">
+                <h3 style="font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 12px;">录音趋势</h3>
+                <div class="mini-chart">
+                    <div class="chart-bar" style="height: 40%;" title="11/01"></div>
+                    <div class="chart-bar" style="height: 20%;" title="11/02"></div>
+                    <div class="chart-bar" style="height: 60%;" title="11/03"></div>
+                    <div class="chart-bar" style="height: 80%;" title="11/04"></div>
+                    <div class="chart-bar" style="height: 30%;" title="11/05"></div>
+                    <div class="chart-bar" style="height: 90%;" title="11/06"></div>
+                    <div class="chart-bar" style="height: 70%;" title="11/07"></div>
+                    <div class="chart-bar" style="height: 45%;" title="11/08"></div>
+                    <div class="chart-bar" style="height: 85%;" title="11/09"></div>
+                    <div class="chart-bar" style="height: 55%;" title="11/10"></div>
+                    <div class="chart-bar" style="height: 95%;" title="11/11"></div>
+                    <div class="chart-bar" style="height: 65%;" title="11/12"></div>
+                    <div class="chart-bar" style="height: 35%;" title="11/13"></div>
+                    <div class="chart-bar" style="height: 75%;" title="11/14"></div>
+                    <div class="chart-bar" style="height: 100%;" title="11/15"></div>
+                    <div class="chart-bar" style="height: 50%;" title="11/16"></div>
+                    <div class="chart-bar" style="height: 25%;" title="11/17"></div>
+                    <div class="chart-bar" style="height: 60%;" title="11/18"></div>
+                    <div class="chart-bar" style="height: 80%;" title="11/19"></div>
+                    <div class="chart-bar" style="height: 40%;" title="11/20"></div>
+                    <div class="chart-bar" style="height: 70%;" title="11/21"></div>
+                    <div class="chart-bar" style="height: 55%;" title="11/22"></div>
+                    <div class="chart-bar" style="height: 90%;" title="11/23"></div>
+                    <div class="chart-bar" style="height: 45%;" title="11/24"></div>
+                    <div class="chart-bar" style="height: 85%;" title="11/25"></div>
+                </div>
+            </div>
+
+            <!-- 月份导航 -->
+            <div class="month-nav">
+                <button class="nav-button">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <h3 style="font-size: 18px; font-weight: 600; color: #111827;">2025年11月</h3>
+                <button class="nav-button">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- 日历网格 -->
+            <div style="background: white; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);">
+                <div class="calendar-grid">
+                    <div class="calendar-header">一</div>
+                    <div class="calendar-header">二</div>
+                    <div class="calendar-header">三</div>
+                    <div class="calendar-header">四</div>
+                    <div class="calendar-header">五</div>
+                    <div class="calendar-header">六</div>
+                    <div class="calendar-header">日</div>
+
+                    <!-- 上月末尾日期 -->
+                    <div class="calendar-day other-month">28</div>
+                    <div class="calendar-day other-month">29</div>
+                    <div class="calendar-day other-month">30</div>
+                    <div class="calendar-day other-month">31</div>
+
+                    <!-- 本月日期 -->
+                    <div class="calendar-day">1</div>
+                    <div class="calendar-day has-recording">2<div class="recording-count">3</div></div>
+                    <div class="calendar-day has-recording">3<div class="recording-count">2</div></div>
+                    <div class="calendar-day has-recording">4<div class="recording-count">5</div></div>
+                    <div class="calendar-day has-recording">5<div class="recording-count">1</div></div>
+                    <div class="calendar-day has-recording">6<div class="recording-count">4</div></div>
+                    <div class="calendar-day has-recording">7<div class="recording-count">3</div></div>
+                    <div class="calendar-day has-recording">8<div class="recording-count">2</div></div>
+                    <div class="calendar-day has-recording">9<div class="recording-count">6</div></div>
+                    <div class="calendar-day has-recording">10<div class="recording-count">3</div></div>
+                    <div class="calendar-day has-recording">11<div class="recording-count">8</div></div>
+                    <div class="calendar-day has-recording">12<div class="recording-count">4</div></div>
+                    <div class="calendar-day has-recording">13<div class="recording-count">2</div></div>
+                    <div class="calendar-day has-recording">14<div class="recording-count">5</div></div>
+                    <div class="calendar-day has-recording">15<div class="recording-count">7</div></div>
+                    <div class="calendar-day has-recording">16<div class="recording-count">3</div></div>
+                    <div class="calendar-day has-recording">17<div class="recording-count">1</div></div>
+                    <div class="calendar-day has-recording">18<div class="recording-count">4</div></div>
+                    <div class="calendar-day has-recording">19<div class="recording-count">6</div></div>
+                    <div class="calendar-day has-recording">20<div class="recording-count">2</div></div>
+                    <div class="calendar-day has-recording">21<div class="recording-count">5</div></div>
+                    <div class="calendar-day has-recording">22<div class="recording-count">3</div></div>
+                    <div class="calendar-day has-recording">23<div class="recording-count">7</div></div>
+                    <div class="calendar-day has-recording">24<div class="recording-count">4</div></div>
+                    <div class="calendar-day today has-recording">25<div class="recording-count">5</div><div class="recording-indicator"></div></div>
+                    <div class="calendar-day">26</div>
+                    <div class="calendar-day">27</div>
+                    <div class="calendar-day">28</div>
+                    <div class="calendar-day">29</div>
+                    <div class="calendar-day">30</div>
+
+                    <!-- 下月开始日期 -->
+                    <div class="calendar-day other-month">1</div>
+                    <div class="calendar-day other-month">2</div>
+                    <div class="calendar-day other-month">3</div>
+                    <div class="calendar-day other-month">4</div>
+                    <div class="calendar-day other-month">5</div>
+                    <div class="calendar-day other-month">6</div>
+                </div>
+            </div>
+
+            <!-- 今日录音详情 -->
+            <div class="day-detail">
+                <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 16px;">今日录音 (11月25日)</h3>
+
+                <div class="audio-item">
+                    <div class="audio-icon" style="background: #dbeafe;">
+                        <i class="fas fa-microphone" style="color: #1e40af; font-size: 16px;"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 14px; font-weight: 500; color: #111827; margin-bottom: 2px;">产品规划会议</div>
+                        <div style="font-size: 12px; color: #6b7280;">14:30 · 1h 25m · 已转写</div>
+                    </div>
+                    <i class="fas fa-play-circle" style="color: #2563eb; font-size: 20px;"></i>
+                </div>
+
+                <div class="audio-item">
+                    <div class="audio-icon" style="background: #dcfce7;">
+                        <i class="fas fa-language" style="color: #166534; font-size: 16px;"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 14px; font-weight: 500; color: #111827; margin-bottom: 2px;">客户需求访谈</div>
+                        <div style="font-size: 12px; color: #6b7280;">10:15 · 45m 30s · 转写中</div>
+                    </div>
+                    <i class="fas fa-pause-circle" style="color: #f59e0b; font-size: 20px;"></i>
+                </div>
+
+                <div class="audio-item">
+                    <div class="audio-icon" style="background: #fef3c7;">
+                        <i class="fas fa-microphone" style="color: #92400e; font-size: 16px;"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 14px; font-weight: 500; color: #111827; margin-bottom: 2px;">技术分享会</div>
+                        <div style="font-size: 12px; color: #6b7280;">16:00 · 2h 15m · 待转写</div>
+                    </div>
+                    <i class="fas fa-play-circle" style="color: #2563eb; font-size: 20px;"></i>
+                </div>
+
+                <div class="audio-item">
+                    <div class="audio-icon" style="background: #f3e8ff;">
+                        <i class="fas fa-graduation-cap" style="color: #6b21a8; font-size: 16px;"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 14px; font-weight: 500; color: #111827; margin-bottom: 2px;">在线课程笔记</div>
+                        <div style="font-size: 12px; color: #6b7280;">09:00 · 1h 30m · 已转写</div>
+                    </div>
+                    <i class="fas fa-play-circle" style="color: #2563eb; font-size: 20px;"></i>
+                </div>
+
+                <div class="audio-item" style="margin-bottom: 0;">
+                    <div class="audio-icon" style="background: #ecfdf5;">
+                        <i class="fas fa-users" style="color: #047857; font-size: 16px;"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 14px; font-weight: 500; color: #111827; margin-bottom: 2px;">团队晨会</div>
+                        <div style="font-size: 12px; color: #6b7280;">08:30 · 25m · 已转写</div>
+                    </div>
+                    <i class="fas fa-play-circle" style="color: #2563eb; font-size: 20px;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 日历点击事件
+        document.querySelectorAll('.calendar-day:not(.other-month)').forEach(day => {
+            day.addEventListener('click', function() {
+                // 移除其他选中状态
+                document.querySelectorAll('.calendar-day').forEach(d => {
+                    if (!d.classList.contains('today')) {
+                        d.classList.remove('selected');
+                    }
+                });
+
+                // 添加选中状态
+                if (!this.classList.contains('today')) {
+                    this.classList.add('selected');
+                }
+
+                // 这里可以添加显示该日期录音详情的逻辑
+                const dayNumber = this.textContent.split('\n')[0];
+                console.log('选择了日期:', dayNumber);
+            });
+        });
+
+        // 月份导航
+        document.querySelector('.nav-button:first-of-type').addEventListener('click', function() {
+            console.log('上一月');
+            // 这里可以添加切换到上个月的逻辑
+        });
+
+        document.querySelector('.nav-button:last-of-type').addEventListener('click', function() {
+            console.log('下一月');
+            // 这里可以添加切换到下个月的逻辑
+        });
+    </script>
+</body>
+</html>

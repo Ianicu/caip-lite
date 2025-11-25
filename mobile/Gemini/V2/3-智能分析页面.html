@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能分析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            background-color: #f6f6f6;
+            overflow-x: hidden;
+        }
+
+        .template-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .template-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            margin-bottom: 12px;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background: #2563eb;
+            color: white;
+            border-radius: 18px 18px 4px 18px;
+            padding: 12px 16px;
+            margin-left: auto;
+        }
+
+        .ai-message {
+            background: #f3f4f6;
+            color: #111827;
+            border-radius: 18px 18px 18px 4px;
+            padding: 12px 16px;
+        }
+
+        .template-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 20px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: #2563eb;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+        }
+
+        .input-container {
+            background: white;
+            border-radius: 24px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-top: 12px;
+        }
+
+        .input-container input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            background: transparent;
+        }
+
+        .input-container button {
+            background: #2563eb;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        /* 隐藏滚动条 */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        html, body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Mockup样式 */
+        .mockup-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 36px;
+            border: 12px solid #1a1a1a;
+            box-shadow: 0 0 40px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-bar {
+            background: white;
+            padding: 12px 24px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .signal-bar {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            margin-right: 8px;
+        }
+
+        .signal-bar div {
+            width: 3px;
+            background: #10b981;
+            border-radius: 1px;
+        }
+
+        .signal-bar div:nth-child(1) { height: 4px; }
+        .signal-bar div:nth-child(2) { height: 8px; }
+        .signal-bar div:nth-child(3) { height: 12px; }
+        .signal-bar div:nth-child(4) { height: 16px; }
+
+        .tab-switch {
+            display: flex;
+            background: #f3f4f6;
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+            transition: all 0.2s ease;
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #2563eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div>9:41</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <div class="signal-bar">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <i class="fas fa-wifi" style="font-size: 14px;"></i>
+                <i class="fas fa-battery-full" style="font-size: 14px;"></i>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div style="padding: 16px; padding-bottom: 100px; height: calc(812px - 84px); overflow-y: auto;">
+            <!-- 标题栏 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1 style="font-size: 20px; font-weight: 600; color: #111827;">智能分析</h1>
+                <button style="background: #f3f4f6; border: none; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-history" style="color: #6b7280; font-size: 16px;"></i>
+                </button>
+            </div>
+
+            <!-- Tab切换 -->
+            <div class="tab-switch">
+                <button class="tab-button active">分析模板</button>
+                <button class="tab-button">AI对话</button>
+            </div>
+
+            <!-- 分析模板页面 -->
+            <div id="template-view">
+                <!-- 模板统计 -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+                    <div style="background: linear-gradient(135deg, #2563eb, #3b82f6); border-radius: 12px; padding: 16px; color: white;">
+                        <i class="fas fa-robot" style="font-size: 24px; margin-bottom: 8px;"></i>
+                        <div style="font-size: 24px; font-weight: 600;">186</div>
+                        <div style="font-size: 14px; opacity: 0.9;">已完成分析</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #10b981, #34d399); border-radius: 12px; padding: 16px; color: white;">
+                        <i class="fas fa-clock" style="font-size: 24px; margin-bottom: 8px;"></i>
+                        <div style="font-size: 24px; font-weight: 600;">12</div>
+                        <div style="font-size: 14px; opacity: 0.9;">进行中</div>
+                    </div>
+                </div>
+
+                <!-- 常用模板 -->
+                <div style="margin-bottom: 20px;">
+                    <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 12px;">常用模板</h3>
+
+                    <!-- 会议纪要模板 -->
+                    <div class="template-card">
+                        <div style="display: flex; align-items: flex-start;">
+                            <div class="template-icon" style="background: #dbeafe;">
+                                <i class="fas fa-users" style="color: #1e40af; font-size: 20px;"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 4px;">会议纪要</h4>
+                                <p style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">自动生成会议主题、参会人员、决议事项等关键信息</p>
+                                <div style="display: flex; gap: 8px;">
+                                    <span style="font-size: 12px; color: #2563eb;">使用 45 次</span>
+                                    <span style="font-size: 12px; color: #9ca3af;">准确率 95%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 学习笔记模板 -->
+                    <div class="template-card">
+                        <div style="display: flex; align-items: flex-start;">
+                            <div class="template-icon" style="background: #dcfce7;">
+                                <i class="fas fa-graduation-cap" style="color: #166534; font-size: 20px;"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 4px;">学习笔记</h4>
+                                <p style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">提取重点知识、关键概念，生成结构化学习内容</p>
+                                <div style="display: flex; gap: 8px;">
+                                    <span style="font-size: 12px; color: #2563eb;">使用 28 次</span>
+                                    <span style="font-size: 12px; color: #9ca3af;">准确率 92%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 采访记录模板 -->
+                    <div class="template-card">
+                        <div style="display: flex; align-items: flex-start;">
+                            <div class="template-icon" style="background: #fef3c7;">
+                                <i class="fas fa-microphone-alt" style="color: #92400e; font-size: 20px;"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 4px;">采访记录</h4>
+                                <p style="font-size: 14px; color: #6b7280; margin-bottom: 8px;">整理问答内容，提取采访对象的核心观点</p>
+                                <div style="display: flex; gap: 8px;">
+                                    <span style="font-size: 12px; color: #2563eb;">使用 32 次</span>
+                                    <span style="font-size: 12px; color: #9ca3af;">准确率 93%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 更多模板 -->
+                <div>
+                    <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 12px;">更多模板</h3>
+
+                    <!-- 项目总结模板 -->
+                    <div class="template-card">
+                        <div style="display: flex; align-items: center;">
+                            <div class="template-icon" style="background: #f3e8ff;">
+                                <i class="fas fa-chart-line" style="color: #6b21a8; font-size: 20px;"></i>
+                            </div>
+                            <div style="flex: 1; margin-left: 16px;">
+                                <h4 style="font-size: 16px; font-weight: 600; color: #111827;">项目总结</h4>
+                                <p style="font-size: 14px; color: #6b7280;">项目进展、成果、问题及改进建议</p>
+                            </div>
+                            <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                        </div>
+                    </div>
+
+                    <!-- 创意灵感模板 -->
+                    <div class="template-card">
+                        <div style="display: flex; align-items: center;">
+                            <div class="template-icon" style="background: #fce7f3;">
+                                <i class="fas fa-lightbulb" style="color: #9f1239; font-size: 20px;"></i>
+                            </div>
+                            <div style="flex: 1; margin-left: 16px;">
+                                <h4 style="font-size: 16px; font-weight: 600; color: #111827;">创意灵感</h4>
+                                <p style="font-size: 14px; color: #6b7280;">捕捉创意点子，整理灵感碎片</p>
+                            </div>
+                            <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                        </div>
+                    </div>
+
+                    <!-- 调研报告模板 -->
+                    <div class="template-card">
+                        <div style="display: flex; align-items: center;">
+                            <div class="template-icon" style="background: #ecfdf5;">
+                                <i class="fas fa-search" style="color: #047857; font-size: 20px;"></i>
+                            </div>
+                            <div style="flex: 1; margin-left: 16px;">
+                                <h4 style="font-size: 16px; font-weight: 600; color: #111827;">调研报告</h4>
+                                <p style="font-size: 14px; color: #6b7280;">市场调研、用户反馈、竞品分析</p>
+                            </div>
+                            <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI对话页面 -->
+            <div id="chat-view" style="display: none;">
+                <div class="chat-container" style="height: calc(812px - 340px); overflow-y: auto;">
+                    <!-- AI欢迎消息 -->
+                    <div class="message-bubble ai-message">
+                        <p style="margin-bottom: 8px;">👋 你好！我是你的AI分析助手</p>
+                        <p>我可以帮助你：</p>
+                        <ul style="margin-top: 8px; margin-left: 16px;">
+                            <li>分析音频内容，提取关键信息</li>
+                            <li>生成会议纪要、学习笔记等</li>
+                            <li>回答关于音频内容的任何问题</li>
+                        </ul>
+                        <p style="margin-top: 8px;">请上传音频文件或粘贴文本内容开始分析。</p>
+                    </div>
+
+                    <!-- 用户消息 -->
+                    <div class="message-bubble user-message">
+                        请帮我分析一下"产品规划会议"的录音，生成会议纪要
+                    </div>
+
+                    <!-- AI回复消息 -->
+                    <div class="message-bubble ai-message">
+                        <p style="margin-bottom: 8px;">📋 正在分析"产品规划会议"录音内容...</p>
+                        <div style="background: #f0f9ff; border-radius: 8px; padding: 12px; margin: 12px 0;">
+                            <h5 style="font-weight: 600; margin-bottom: 8px;">📊 分析结果</h5>
+                            <div style="margin-bottom: 8px;">
+                                <strong>会议主题：</strong>2025年Q1产品规划
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>参会人员：</strong>张经理、李工程师、王设计师、赵产品经理（4人）
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>关键决议：</strong>
+                                <ul style="margin-left: 16px; margin-top: 4px;">
+                                    <li>重点优化用户体验流程</li>
+                                    <li>增加AI智能分析功能</li>
+                                    <li>计划下个月发布新版本</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong>后续行动：</strong>技术团队开始需求分析，设计团队准备原型
+                            </div>
+                        </div>
+                        <p>需要我为你生成完整的会议纪要文档吗？</p>
+                    </div>
+
+                    <!-- 用户确认 -->
+                    <div class="message-bubble user-message">
+                        好的，请生成完整的会议纪要
+                    </div>
+                </div>
+
+                <!-- 输入区域 -->
+                <div class="input-container">
+                    <input type="text" placeholder="输入你的问题或上传音频..." />
+                    <button>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <a href="#" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-music"></i>
+                <span>音频</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <i class="fas fa-brain"></i>
+                <span>智能分析</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-folder"></i>
+                <span>合订本</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>我的</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Tab切换功能
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // 移除所有active类
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                // 添加active类到当前按钮
+                this.classList.add('active');
+
+                // 切换视图
+                if (this.textContent === '分析模板') {
+                    document.getElementById('template-view').style.display = 'block';
+                    document.getElementById('chat-view').style.display = 'none';
+                } else {
+                    document.getElementById('template-view').style.display = 'none';
+                    document.getElementById('chat-view').style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

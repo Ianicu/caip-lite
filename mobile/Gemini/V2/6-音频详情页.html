@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音频详情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            background-color: #f6f6f6;
+            overflow-x: hidden;
+        }
+
+        .player-container {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .waveform {
+            width: 100%;
+            height: 80px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 16px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: rgba(37, 99, 235, 0.1);
+            width: 35%;
+        }
+
+        .control-button {
+            background: #f3f4f6;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 8px;
+            transition: all 0.3s ease;
+        }
+
+        .control-button:hover {
+            background: #e5e7eb;
+        }
+
+        .control-button.primary {
+            background: #2563eb;
+            color: white;
+            width: 56px;
+            height: 56px;
+        }
+
+        .control-button.primary:hover {
+            background: #1d4ed8;
+        }
+
+        .speaker-tag {
+            background: #f3f4f6;
+            color: #374151;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-right: 8px;
+        }
+
+        .speaker-tag.user {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .speaker-tag.other {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .action-button {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .tab-button {
+            background: transparent;
+            border: none;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+
+        .text-content {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            font-size: 15px;
+            line-height: 1.6;
+            color: #111827;
+        }
+
+        .keyword-chip {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        /* 隐藏滚动条 */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        html, body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Mockup样式 */
+        .mockup-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 36px;
+            border: 12px solid #1a1a1a;
+            box-shadow: 0 0 40px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-bar {
+            background: white;
+            padding: 12px 24px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .signal-bar {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            margin-right: 8px;
+        }
+
+        .signal-bar div {
+            width: 3px;
+            background: #10b981;
+            border-radius: 1px;
+        }
+
+        .signal-bar div:nth-child(1) { height: 4px; }
+        .signal-bar div:nth-child(2) { height: 8px; }
+        .signal-bar div:nth-child(3) { height: 12px; }
+        .signal-bar div:nth-child(4) { height: 16px; }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div>9:41</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <div class="signal-bar">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <i class="fas fa-wifi" style="font-size: 14px;"></i>
+                <i class="fas fa-battery-full" style="font-size: 14px;"></i>
+            </div>
+        </div>
+
+        <!-- 头部导航 -->
+        <div class="header-nav">
+            <button style="background: transparent; border: none;">
+                <i class="fas fa-arrow-left" style="font-size: 20px; color: #374151;"></i>
+            </button>
+            <h2 style="font-size: 16px; font-weight: 600; color: #111827;">音频详情</h2>
+            <div style="display: flex; gap: 8px;">
+                <button style="background: transparent; border: none;">
+                    <i class="fas fa-share-alt" style="font-size: 18px; color: #374151;"></i>
+                </button>
+                <button style="background: transparent; border: none;">
+                    <i class="fas fa-ellipsis-h" style="font-size: 18px; color: #374151;"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div style="padding: 16px; padding-bottom: 20px; height: calc(812px - 120px); overflow-y: auto;">
+            <!-- 音频信息 -->
+            <div style="background: white; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);">
+                <h1 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 12px;">产品规划会议</h1>
+                <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 14px; color: #6b7280;">
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas fa-calendar" style="margin-right: 4px; font-size: 14px;"></i>
+                        2025-11-25 14:30
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas fa-clock" style="margin-right: 4px; font-size: 14px;"></i>
+                        1h 25m
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas fa-hdd" style="margin-right: 4px; font-size: 14px;"></i>
+                        128.5 MB
+                    </div>
+                </div>
+            </div>
+
+            <!-- 播放器 -->
+            <div class="player-container">
+                <!-- 波形显示 -->
+                <div class="waveform">
+                    <div class="progress-bar"></div>
+                    <canvas id="waveform" width="335" height="80"></canvas>
+                </div>
+
+                <!-- 时间显示 -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <span style="font-size: 14px; color: #6b7280;">29:45</span>
+                    <span style="font-size: 14px; color: #6b7280;">85:20</span>
+                </div>
+
+                <!-- 播放控制 -->
+                <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                    <button class="control-button">
+                        <i class="fas fa-backward" style="font-size: 16px;"></i>
+                    </button>
+                    <button class="control-button">
+                        <i class="fas fa-redo" style="font-size: 14px;"></i>
+                    </button>
+                    <button class="control-button primary">
+                        <i class="fas fa-pause" style="font-size: 20px;"></i>
+                    </button>
+                    <button class="control-button">
+                        <i class="fas fa-forward" style="font-size: 16px;"></i>
+                    </button>
+                    <button class="control-button">
+                        <i class="fas fa-tachometer-alt" style="font-size: 14px;"></i>
+                    </button>
+                </div>
+
+                <!-- 播放速度 -->
+                <div style="display: flex; justify-content: center; gap: 8px;">
+                    <button style="background: #f3f4f6; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #6b7280;">0.5x</button>
+                    <button style="background: #2563eb; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white;">1.0x</button>
+                    <button style="background: #f3f4f6; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #6b7280;">1.5x</button>
+                    <button style="background: #f3f4f6; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #6b7280;">2.0x</button>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div style="display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto;">
+                <button class="action-button">
+                    <i class="fas fa-language" style="color: #2563eb;"></i>
+                    <span>重新转写</span>
+                </button>
+                <button class="action-button">
+                    <i class="fas fa-edit" style="color: #2563eb;"></i>
+                    <span>编辑文本</span>
+                </button>
+                <button class="action-button">
+                    <i class="fas fa-crop" style="color: #2563eb;"></i>
+                    <span>裁剪音频</span>
+                </button>
+                <button class="action-button">
+                    <i class="fas fa-folder-plus" style="color: #2563eb;"></i>
+                    <span>加入合订本</span>
+                </button>
+            </div>
+
+            <!-- Tab切换 -->
+            <div style="display: flex; background: white; border-radius: 12px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);">
+                <button class="tab-button active" style="flex: 1;">转写文本</button>
+                <button class="tab-button" style="flex: 1;">AI分析</button>
+                <button class="tab-button" style="flex: 1;">关键词</button>
+            </div>
+
+            <!-- 转写文本内容 -->
+            <div class="text-content">
+                <div style="margin-bottom: 16px;">
+                    <span class="speaker-tag user">张经理</span>
+                    <span style="font-size: 14px; color: #6b7280; margin-left: 8px;">14:30:15</span>
+                </div>
+                <p style="margin-bottom: 16px;">
+                    大家好，今天我们主要讨论一下2025年第一季度的产品规划。根据上个月的用户反馈和市场调研结果，我们需要在几个关键方面进行重点改进。
+                </p>
+
+                <div style="margin-bottom: 16px;">
+                    <span class="speaker-tag other">李工程师</span>
+                    <span style="font-size: 14px; color: #6b7280; margin-left: 8px;">14:31:20</span>
+                </div>
+                <p style="margin-bottom: 16px;">
+                    从技术角度来看，我建议我们重点关注性能优化和稳定性提升。特别是针对大型文件处理和并发用户场景的优化，这在用户反馈中是一个比较突出的问题。
+                </p>
+
+                <div style="margin-bottom: 16px;">
+                    <span class="speaker-tag other">王设计师</span>
+                    <span style="font-size: 14px; color: #6b7280; margin-left: 8px;">14:32:45</span>
+                </div>
+                <p style="margin-bottom: 16px;">
+                    用户体验方面，我建议简化操作流程，减少用户的学习成本。同时，我们需要改进界面的响应速度和交互反馈，让用户能够更直观地使用我们的产品。
+                </p>
+
+                <div style="margin-bottom: 16px;">
+                    <span class="speaker-tag other">赵产品经理</span>
+                    <span style="font-size: 14px; color: #6b7280; margin-left: 8px;">14:33:50</span>
+                </div>
+                <p style="margin-bottom: 16px;">
+                    市场调研显示，竞品在AI智能分析功能上投入了很多资源。我建议我们也增加相关的AI功能，比如自动总结、智能问答等，这将成为我们的差异化优势。
+                </p>
+
+                <div style="margin-bottom: 16px;">
+                    <span class="speaker-tag user">张经理</span>
+                    <span style="font-size: 14px; color: #6b7280; margin-left: 8px;">14:35:00</span>
+                </div>
+                <p style="margin-bottom: 16px;">
+                    很好的建议。技术团队负责性能优化，设计团队改进用户体验，产品团队调研AI功能的具体需求。我们下个月的目标是发布一个包含这些改进的新版本。
+                </p>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button style="background: #2563eb; border: none; padding: 8px 20px; border-radius: 20px; color: white; font-size: 14px;">
+                        显示完整文本 <i class="fas fa-chevron-down" style="margin-left: 4px;"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI分析结果（默认隐藏） -->
+            <div class="text-content" style="display: none;">
+                <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 12px;">AI智能分析</h3>
+
+                <div style="background: #f0f9ff; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                    <h4 style="font-size: 14px; font-weight: 600; color: #0369a1; margin-bottom: 8px;">会议摘要</h4>
+                    <p style="font-size: 14px; color: #111827; line-height: 1.5;">
+                        本次会议主要讨论了2025年Q1产品规划，确定了三个重点方向：技术性能优化、用户体验改进和AI功能增强。计划下月发布新版本。
+                    </p>
+                </div>
+
+                <div style="background: #f0fdf4; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                    <h4 style="font-size: 14px; font-weight: 600; color: #166534; margin-bottom: 8px;">关键决议</h4>
+                    <ul style="font-size: 14px; color: #111827; margin-left: 16px;">
+                        <li style="margin-bottom: 4px;">技术团队：性能优化和稳定性提升</li>
+                        <li style="margin-bottom: 4px;">设计团队：简化操作流程，改进UI响应</li>
+                        <li style="margin-bottom: 4px;">产品团队：调研AI功能需求</li>
+                        <li>目标：下个月发布新版本</li>
+                    </ul>
+                </div>
+
+                <div style="background: #fef3c7; border-radius: 8px; padding: 12px;">
+                    <h4 style="font-size: 14px; font-weight: 600; color: #92400e; margin-bottom: 8px;">后续行动</h4>
+                    <p style="font-size: 14px; color: #111827; line-height: 1.5;">
+                        各团队根据分工制定详细计划，每周汇报进展，确保按时完成新版本开发。
+                    </p>
+                </div>
+            </div>
+
+            <!-- 关键词（默认隐藏） -->
+            <div class="text-content" style="display: none;">
+                <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 12px;">关键词提取</h3>
+
+                <div style="margin-bottom: 16px;">
+                    <h4 style="font-size: 14px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">核心主题</h4>
+                    <div>
+                        <span class="keyword-chip">产品规划</span>
+                        <span class="keyword-chip">用户体验</span>
+                        <span class="keyword-chip">性能优化</span>
+                        <span class="keyword-chip">AI功能</span>
+                        <span class="keyword-chip">版本发布</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <h4 style="font-size: 14px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">技术词汇</h4>
+                    <div>
+                        <span class="keyword-chip">性能优化</span>
+                        <span class="keyword-chip">稳定性提升</span>
+                        <span class="keyword-chip">并发处理</span>
+                        <span class="keyword-chip">界面响应</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 style="font-size: 14px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">行动相关</h4>
+                    <div>
+                        <span class="keyword-chip">市场调研</span>
+                        <span class="keyword-chip">用户反馈</span>
+                        <span class="keyword-chip">竞品分析</span>
+                        <span class="keyword-chip">差异化</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 绘制波形图
+        const canvas = document.getElementById('waveform');
+        const ctx = canvas.getContext('2d');
+
+        // 简单的波形绘制
+        function drawWaveform() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#d1d5db';
+            ctx.lineWidth = 1;
+
+            for (let x = 0; x < canvas.width; x += 3) {
+                const y = 40 + Math.sin(x * 0.05) * Math.random() * 30;
+                ctx.beginPath();
+                ctx.moveTo(x, 40);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+        }
+
+        drawWaveform();
+
+        // Tab切换功能
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // 移除所有active类
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                // 添加active类到当前按钮
+                this.classList.add('active');
+
+                // 切换内容显示
+                const contents = document.querySelectorAll('.text-content');
+                contents.forEach(content => content.style.display = 'none');
+
+                if (this.textContent === '转写文本') {
+                    contents[0].style.display = 'block';
+                } else if (this.textContent === 'AI分析') {
+                    contents[1].style.display = 'block';
+                } else if (this.textContent === '关键词') {
+                    contents[2].style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
