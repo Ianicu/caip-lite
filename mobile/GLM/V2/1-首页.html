@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>录音设备管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            background-color: #f6f6f6;
+            overflow-x: hidden;
+        }
+
+        .device-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .device-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .status-online { background-color: #10b981; }
+        .status-offline { background-color: #6b7280; }
+        .status-recording { background-color: #ef4444; animation: pulse 2s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 20px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: #2563eb;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+        }
+
+        .signal-bar {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            margin-right: 8px;
+        }
+
+        .signal-bar div {
+            width: 3px;
+            background: #10b981;
+            border-radius: 1px;
+        }
+
+        .signal-bar div:nth-child(1) { height: 4px; }
+        .signal-bar div:nth-child(2) { height: 8px; }
+        .signal-bar div:nth-child(3) { height: 12px; }
+        .signal-bar div:nth-child(4) { height: 16px; }
+
+        /* 隐藏滚动条 */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        html, body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Mockup样式 */
+        .mockup-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 36px;
+            border: 12px solid #1a1a1a;
+            box-shadow: 0 0 40px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-bar {
+            background: white;
+            padding: 12px 24px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div>9:41</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <div class="signal-bar">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <i class="fas fa-wifi" style="font-size: 14px;"></i>
+                <i class="fas fa-battery-full" style="font-size: 14px;"></i>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div style="padding: 16px; padding-bottom: 100px; height: calc(812px - 84px); overflow-y: auto;">
+            <!-- 标题栏 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1 style="font-size: 20px; font-weight: 600; color: #111827;">我的设备</h1>
+                <div style="display: flex; gap: 12px;">
+                    <button style="background: #f3f4f6; border: none; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-sync-alt" style="color: #6b7280; font-size: 16px;"></i>
+                    </button>
+                    <button style="background: #2563eb; border: none; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-plus" style="color: white; font-size: 16px;"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 统计信息 -->
+            <div style="background: linear-gradient(135deg, #2563eb, #3b82f6); border-radius: 12px; padding: 16px; margin-bottom: 20px; color: white;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-size: 14px; opacity: 0.9;">在线设备</div>
+                        <div style="font-size: 32px; font-weight: 600;">3 / 5</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 14px; opacity: 0.9;">总存储</div>
+                        <div style="font-size: 18px; font-weight: 500;">32.5 GB</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设备列表 -->
+            <div>
+                <!-- 设备1 - 在线录音中 -->
+                <div class="device-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="background: #3b82f6; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                                <i class="fas fa-microphone" style="color: white; font-size: 18px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 16px; color: #111827; margin-bottom: 4px;">会议室录音设备</div>
+                                <div style="display: flex; align-items: center; font-size: 14px; color: #6b7280;">
+                                    <span class="status-indicator status-recording"></span>
+                                    录音中
+                                </div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">存储</div>
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">8.2 GB / 16 GB</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">电量</div>
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">85%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">信号</div>
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">良好</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设备2 - 在线待机 -->
+                <div class="device-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="background: #10b981; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                                <i class="fas fa-microphone" style="color: white; font-size: 18px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 16px; color: #111827; margin-bottom: 4px;">书房录音笔</div>
+                                <div style="display: flex; align-items: center; font-size: 14px; color: #6b7280;">
+                                    <span class="status-indicator status-online"></span>
+                                    在线待机
+                                </div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">存储</div>
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">12.1 GB / 16 GB</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">电量</div>
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">42%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">信号</div>
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">优秀</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设备3 - 离线 -->
+                <div class="device-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="background: #6b7280; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                                <i class="fas fa-microphone-slash" style="color: white; font-size: 18px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 16px; color: #111827; margin-bottom: 4px;">车载录音设备</div>
+                                <div style="display: flex; align-items: center; font-size: 14px; color: #6b7280;">
+                                    <span class="status-indicator status-offline"></span>
+                                    离线
+                                </div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">最后在线</div>
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">2小时前</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">存储</div>
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">15.2 GB / 16 GB</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">电量</div>
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">78%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设备4 - 在线转写中 -->
+                <div class="device-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="background: #8b5cf6; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                                <i class="fas fa-language" style="color: white; font-size: 18px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 16px; color: #111827; margin-bottom: 4px;">便携录音器</div>
+                                <div style="display: flex; align-items: center; font-size: 14px; color: #6b7280;">
+                                    <span class="status-indicator status-online"></span>
+                                    转写中 65%
+                                </div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">存储</div>
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">4.5 GB / 8 GB</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">电量</div>
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">91%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">信号</div>
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">一般</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设备5 - 在线待机 -->
+                <div class="device-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="background: #10b981; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                                <i class="fas fa-microphone" style="color: white; font-size: 18px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 16px; color: #111827; margin-bottom: 4px;">会议室录音设备02</div>
+                                <div style="display: flex; align-items: center; font-size: 14px; color: #6b7280;">
+                                    <span class="status-indicator status-online"></span>
+                                    在线待机
+                                </div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">存储</div>
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">6.8 GB / 16 GB</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">电量</div>
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">67%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #9ca3af; margin-bottom: 4px;">信号</div>
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">优秀</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <a href="#" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-music"></i>
+                <span>音频</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-brain"></i>
+                <span>智能分析</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-folder"></i>
+                <span>合订本</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>我的</span>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

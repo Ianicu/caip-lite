@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            background-color: #f6f6f6;
+            overflow-x: hidden;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            padding: 24px 16px 32px;
+            color: white;
+            border-radius: 0 0 24px 24px;
+        }
+
+        .menu-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .menu-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+        }
+
+        .storage-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.blue {
+            background: #2563eb;
+        }
+
+        .progress-fill.green {
+            background: #10b981;
+        }
+
+        .progress-fill.yellow {
+            background: #f59e0b;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 20px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: #2563eb;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+        }
+
+        /* 隐藏滚动条 */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        html, body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Mockup样式 */
+        .mockup-container {
+            width: 375px;
+            height: 812px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 36px;
+            border: 12px solid #1a1a1a;
+            box-shadow: 0 0 40px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-bar {
+            background: transparent;
+            padding: 12px 24px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .signal-bar {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            margin-right: 8px;
+        }
+
+        .signal-bar div {
+            width: 3px;
+            background: #10b981;
+            border-radius: 1px;
+        }
+
+        .signal-bar div:nth-child(1) { height: 4px; }
+        .signal-bar div:nth-child(2) { height: 8px; }
+        .signal-bar div:nth-child(3) { height: 12px; }
+        .signal-bar div:nth-child(4) { height: 16px; }
+
+        .calendar-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .calendar-item.has-recording {
+            background: #dbeafe;
+            border: 1px solid #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div>9:41</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <div class="signal-bar">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <i class="fas fa-wifi" style="font-size: 14px;"></i>
+                <i class="fas fa-battery-full" style="font-size: 14px;"></i>
+            </div>
+        </div>
+
+        <!-- 个人信息头部 -->
+        <div class="profile-header">
+            <div style="display: flex; align-items: center; margin-bottom: 24px;">
+                <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; margin-right: 16px;">
+                    <i class="fas fa-user" style="font-size: 28px; color: white;"></i>
+                </div>
+                <div>
+                    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 4px;">张小明</h2>
+                    <p style="font-size: 14px; opacity: 0.9;">138****8888</p>
+                </div>
+                <div style="margin-left: auto;">
+                    <button style="background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-edit" style="color: white; font-size: 14px;"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 快速统计 -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; margin-bottom: 4px;">5</div>
+                    <div style="font-size: 12px; opacity: 0.9;">设备数</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; margin-bottom: 4px;">156</div>
+                    <div style="font-size: 12px; opacity: 0.9;">音频数</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: 600; margin-bottom: 4px;">12</div>
+                    <div style="font-size: 12px; opacity: 0.9;">合订本</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div style="padding: 16px; padding-bottom: 100px; height: calc(812px - 200px); overflow-y: auto;">
+            <!-- 存储和额度信息 -->
+            <div class="storage-card">
+                <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 16px;">账户使用情况</h3>
+
+                <!-- 转写额度 -->
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 14px; color: #6b7280;">转写额度</span>
+                        <span style="font-size: 14px; font-weight: 500; color: #111827;">8.5h / 10h</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill blue" style="width: 85%;"></div>
+                    </div>
+                </div>
+
+                <!-- 存储空间 -->
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 14px; color: #6b7280;">存储空间</span>
+                        <span style="font-size: 14px; font-weight: 500; color: #111827;">6.8GB / 10GB</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill green" style="width: 68%;"></div>
+                    </div>
+                </div>
+
+                <!-- 设备数量 -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 14px; color: #6b7280;">绑定设备</span>
+                        <span style="font-size: 14px; font-weight: 500; color: #111827;">5 / 10</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill yellow" style="width: 50%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能菜单 -->
+            <div style="margin-bottom: 20px;">
+                <!-- 设备管理 -->
+                <div class="menu-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #dbeafe;">
+                            <i class="fas fa-microphone" style="color: #1e40af; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #111827;">设备管理</div>
+                            <div style="font-size: 14px; color: #6b7280;">管理绑定的录音设备</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                </div>
+
+                <!-- 录音日历 -->
+                <div class="menu-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #dcfce7;">
+                            <i class="fas fa-calendar" style="color: #166534; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #111827;">录音日历</div>
+                            <div style="font-size: 14px; color: #6b7280;">查看录音时间分布</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                </div>
+
+                <!-- 账户设置 -->
+                <div class="menu-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #fef3c7;">
+                            <i class="fas fa-cog" style="color: #92400e; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #111827;">账户设置</div>
+                            <div style="font-size: 14px; color: #6b7280;">个人信息与安全设置</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                </div>
+            </div>
+
+            <!-- 本月录音统计 -->
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 12px;">本月录音统计</h3>
+                <div style="background: white; border-radius: 12px; padding: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);">
+                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 16px;">
+                        <div style="text-align: center; font-size: 12px; color: #6b7280;">一</div>
+                        <div style="text-align: center; font-size: 12px; color: #6b7280;">二</div>
+                        <div style="text-align: center; font-size: 12px; color: #6b7280;">三</div>
+                        <div style="text-align: center; font-size: 12px; color: #6b7280;">四</div>
+                        <div style="text-align: center; font-size: 12px; color: #6b7280;">五</div>
+                        <div style="text-align: center; font-size: 12px; color: #6b7280;">六</div>
+                        <div style="text-align: center; font-size: 12px; color: #6b7280;">日</div>
+
+                        <div class="calendar-item">18</div>
+                        <div class="calendar-item has-recording">19<br><span style="font-size: 10px;">3</span></div>
+                        <div class="calendar-item">20</div>
+                        <div class="calendar-item has-recording">21<br><span style="font-size: 10px;">1</span></div>
+                        <div class="calendar-item">22</div>
+                        <div class="calendar-item has-recording">23<br><span style="font-size: 10px;">2</span></div>
+                        <div class="calendar-item has-recording">24<br><span style="font-size: 10px;">4</span></div>
+
+                        <div class="calendar-item">25</div>
+                        <div class="calendar-item">26</div>
+                        <div class="calendar-item">27</div>
+                        <div class="calendar-item">28</div>
+                        <div class="calendar-item">29</div>
+                        <div class="calendar-item">30</div>
+                        <div class="calendar-item">1</div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-around; text-align: center;">
+                        <div>
+                            <div style="font-size: 18px; font-weight: 600; color: #2563eb;">15</div>
+                            <div style="font-size: 12px; color: #6b7280;">录音天数</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 18px; font-weight: 600; color: #10b981;">42</div>
+                            <div style="font-size: 12px; color: #6b7280;">音频数量</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 18px; font-weight: 600; color: #f59e0b;">8.5h</div>
+                            <div style="font-size: 12px; color: #6b7280;">总时长</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 其他功能 -->
+            <div>
+                <!-- 帮助与反馈 -->
+                <div class="menu-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #f3f4f6;">
+                            <i class="fas fa-question-circle" style="color: #374151; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #111827;">帮助与反馈</div>
+                            <div style="font-size: 14px; color: #6b7280;">使用帮助与问题反馈</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                </div>
+
+                <!-- 关于我们 -->
+                <div class="menu-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #f3f4f6;">
+                            <i class="fas fa-info-circle" style="color: #374151; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #111827;">关于我们</div>
+                            <div style="font-size: 14px; color: #6b7280;">版本 2.1.0</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                </div>
+
+                <!-- 退出登录 -->
+                <div class="menu-item" style="margin-bottom: 0;">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-icon" style="background: #fee2e2;">
+                            <i class="fas fa-sign-out-alt" style="color: #dc2626; font-size: 18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #dc2626;">退出登录</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #9ca3af; font-size: 16px;"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <a href="#" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-music"></i>
+                <span>音频</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-brain"></i>
+                <span>智能分析</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-folder"></i>
+                <span>合订本</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <i class="fas fa-user"></i>
+                <span>我的</span>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
